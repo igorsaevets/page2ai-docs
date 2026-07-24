@@ -1,0 +1,5 @@
+Contact: mailto:igorsaevets@gmail.com
+Expires: 2027-07-24T00:00:00.000Z
+Preferred-Languages: en, ru
+Canonical: https://igorsaevets.github.io/page2ai-docs/.well-known/security.txt
+Policy: https://igorsaevets.github.io/page2ai-docs/privacy/

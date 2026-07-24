@@ -11,8 +11,13 @@ head:
         "@type": "Person",
         "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person",
         "name": "Igor Saevets",
+        "alternateName": ["Игорь Саевец"],
         "givenName": "Igor",
         "familyName": "Saevets",
+        "nationality": [
+          {"@type": "Country", "name": "Belarus"},
+          {"@type": "Country", "name": "United States"}
+        ],
         "url": "https://igorsaevets.github.io/page2ai-docs/about/",
         "mainEntityOfPage": {
           "@type": "AboutPage",

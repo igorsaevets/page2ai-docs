@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use these docs, please cite the associated software (page2ai-extension / page2ai-mcp / page2ai-core) rather than this docs site."
+title: "Page2AI Documentation"
+abstract: >-
+  Official documentation for the Page2AI product suite: Chrome extension,
+  MCP server, and npm core library that convert any web page to clean
+  Markdown for LLM consumption. Built with Astro Starlight.
+type: software
+version: 0.1.0
+date-released: 2026-07-23
+license: MIT
+repository-code: "https://github.com/igorsaevets/page2ai-docs"
+url: "https://igorsaevets.github.io/page2ai-docs/"
+authors:
+  - given-names: Igor
+    family-names: Saevets
+    orcid: "https://orcid.org/0009-0006-8636-1377"
+    email: igorsaevets@gmail.com
+    website: "https://igorsaevets.github.io/page2ai-docs/about/"
+keywords:
+  - documentation
+  - starlight
+  - astro
+  - page2ai
+  - mcp
+  - ai
