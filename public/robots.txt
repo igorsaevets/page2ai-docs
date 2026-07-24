@@ -1,0 +1,7 @@
+# robots.txt for Page2AI documentation
+# https://igorsaevets.github.io/page2ai-docs/
+
+User-agent: *
+Allow: /
+
+Sitemap: https://igorsaevets.github.io/page2ai-docs/sitemap-index.xml
