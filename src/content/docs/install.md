@@ -1,6 +1,21 @@
 ---
 title: Install
-description: Install the Page2AI extension, MCP server, or npm library for your target environment.
+description: Install the Page2AI extension, MCP server, or npm library for your target environment. By Igor Saevets.
+head:
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Install Page2AI — Chrome extension, MCP server, npm library",
+        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "url": "https://igorsaevets.github.io/page2ai-docs/install/",
+        "mainEntityOfPage": "https://igorsaevets.github.io/page2ai-docs/install/",
+        "proficiencyLevel": "Beginner"
+      }
 ---
 
 Pick the surface that matches how you want to use Page2AI.
@@ -88,3 +103,7 @@ console.log(result.markdown);
 Both `htmlToMarkdown` (sync) and `fetchAndConvert` (async, with SSRF guard + timeout) are exported.
 
 Node ≥ 18. Zero external API calls; uses [linkedom](https://github.com/WebReflection/linkedom) for parsing.
+
+---
+
+*Written by [Igor Saevets](/page2ai-docs/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*

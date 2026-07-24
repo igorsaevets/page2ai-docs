@@ -1,6 +1,27 @@
 ---
 title: MCP server
-description: Page2AI MCP server exposes a single tool page_to_markdown for Claude Desktop, Cursor, Windsurf, Zed, and other MCP clients.
+description: Page2AI MCP server exposes a single tool page_to_markdown for Claude Desktop, Cursor, Windsurf, Zed, and other MCP clients. By Igor Saevets.
+head:
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Page2AI MCP server — page_to_markdown tool for Claude Desktop, Cursor, Windsurf, Zed",
+        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "url": "https://igorsaevets.github.io/page2ai-docs/mcp/",
+        "mainEntityOfPage": "https://igorsaevets.github.io/page2ai-docs/mcp/",
+        "about": {
+          "@type": "SoftwareApplication",
+          "name": "@page2ai/mcp",
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "macOS, Windows, Linux",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        }
+      }
 ---
 
 `@page2ai/mcp` is an MCP server (Model Context Protocol) that exposes a single tool for turning any web page into clean Markdown. It speaks stdio, ships as an npm package, and requires no external services.
@@ -83,3 +104,7 @@ Registered as `io.github.igorsaevets/page2ai-mcp` in the [official MCP Registry]
 ## Known advisories
 
 `npm audit` reports one moderate finding in `@hono/node-server`, a transitive dependency of `@modelcontextprotocol/sdk`. The affected code path is only reached by the SDK's HTTP/OAuth server code; this stdio server never loads it. See the [package README](https://github.com/igorsaevets/page2ai-mcp#known-advisories) for the full analysis.
+
+---
+
+*Written by [Igor Saevets](/page2ai-docs/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets) · [ORCID 0009-0006-8636-1377](https://orcid.org/0009-0006-8636-1377).*

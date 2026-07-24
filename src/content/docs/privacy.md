@@ -1,6 +1,22 @@
 ---
 title: Privacy Policy
-description: What Page2AI collects, sends, and stores. Short answer, none.
+description: What Page2AI collects, sends, and stores. Short answer, none. Author, Igor Saevets.
+head:
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": "https://igorsaevets.github.io/page2ai-docs/privacy/",
+        "name": "Page2AI privacy policy",
+        "url": "https://igorsaevets.github.io/page2ai-docs/privacy/",
+        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "datePublished": "2026-07-24",
+        "inLanguage": "en"
+      }
 ---
 
 **Effective date:** 2026-07-24. **Applies to:** Page2AI Chrome extension (Manifest V3), `@page2ai/core` npm package, `@page2ai/mcp` MCP server, and the unscoped `page2ai-mcp` wrapper. **Author:** Igor Saevets (igorsaevets@gmail.com, ORCID 0009-0006-8636-1377).

@@ -1,6 +1,20 @@
 ---
 title: Comparison
-description: How Page2AI compares to Firecrawl, Jina Reader, markitdown, crawl4ai, and browser clippers.
+description: How Page2AI compares to Firecrawl, Jina Reader, markitdown, crawl4ai, and browser clippers. By Igor Saevets.
+head:
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Page2AI vs Firecrawl vs Jina Reader vs markitdown vs crawl4ai — feature comparison",
+        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "url": "https://igorsaevets.github.io/page2ai-docs/comparison/",
+        "mainEntityOfPage": "https://igorsaevets.github.io/page2ai-docs/comparison/"
+      }
 ---
 
 Different tools sit in different corners of the same problem space. This page is a factual matrix, not a marketing pitch. Every tool listed is legitimate and useful in its own niche.
@@ -37,3 +51,7 @@ Different tools sit in different corners of the same problem space. This page is
 An open, reproducible benchmark suite is in progress at [github.com/igorsaevets/page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark). Five documentation frameworks × three tools × two tasks = 30 data points, published under MIT with CC0 data.
 
 Framing: **tradeoff matrix**, not "we win overall." Page2AI is expected to lead on JSX/MDX-heavy sites with heavy tab widgets, and to lag on plain HTML pages that Firecrawl or Jina handle equally well. Local vs cloud, cost vs speed, telemetry vs privacy are separate axes.
+
+---
+
+*Written by [Igor Saevets](/page2ai-docs/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*
