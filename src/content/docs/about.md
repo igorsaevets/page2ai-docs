@@ -43,8 +43,7 @@ head:
           "https://orcid.org/0009-0006-8636-1377",
           "https://github.com/igorsaevets",
           "https://www.linkedin.com/in/igorsaevets/",
-          "https://www.npmjs.com/~igorsaevets",
-          "https://www.facebook.com/igorsaevets"
+          "https://www.npmjs.com/~igorsaevets"
         ],
         "knowsAbout": [
           "Artificial Intelligence",
