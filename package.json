@@ -1,0 +1,27 @@
+{
+  "name": "page2ai-docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for the Page2AI product suite (Chrome extension + @page2ai/core + @page2ai/mcp)",
+  "author": "Igor Saevets",
+  "license": "MIT",
+  "homepage": "https://igorsaevets.github.io/page2ai-docs/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/igorsaevets/page2ai-docs.git"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.4",
+    "astro": "^7.0.2",
+    "sharp": "^0.35.3",
+    "starlight-llms-txt": "^0.11.0"
+  }
+}
