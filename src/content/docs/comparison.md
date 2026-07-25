@@ -48,7 +48,7 @@ Different tools sit in different corners of the same problem space. This page is
 
 ## Benchmark
 
-An open, reproducible benchmark suite is in progress at [github.com/igorsaevets/page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark). Five documentation frameworks × three tools × two tasks = 30 data points, published under MIT with CC0 data.
+An open, reproducible benchmark suite is in progress at [github.com/igorsaevets/page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark) — archived at DOI [10.5281/zenodo.21539768](https://doi.org/10.5281/zenodo.21539768). Five documentation frameworks × three tools × two tasks = 30 data points, published under MIT with CC0 data.
 
 Framing: **tradeoff matrix**, not "we win overall." Page2AI is expected to lead on JSX/MDX-heavy sites with heavy tab widgets, and to lag on plain HTML pages that Firecrawl or Jina handle equally well. Local vs cloud, cost vs speed, telemetry vs privacy are separate axes.
 
