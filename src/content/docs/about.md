@@ -14,10 +14,7 @@ head:
         "alternateName": ["Игорь Саевец"],
         "givenName": "Igor",
         "familyName": "Saevets",
-        "nationality": [
-          {"@type": "Country", "name": "Belarus"},
-          {"@type": "Country", "name": "United States"}
-        ],
+        "nationality": {"@type": "Country", "name": "Belarus"},
         "url": "https://igorsaevets.github.io/page2ai-docs/about/",
         "mainEntityOfPage": {
           "@type": "AboutPage",
