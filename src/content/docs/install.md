@@ -24,10 +24,21 @@ Pick the surface that matches how you want to use Page2AI.
 
 The recommended way for humans clipping one page at a time.
 
-**Chrome Web Store.** Search for `Page2AI` or open the direct listing:
-[chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno](https://chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno)
+**Chrome Web Store: submitted 2026-07-21, still in review.** There is nothing to install from the
+store yet. Google's guidance is that a review can take a few weeks. Check the current state
+yourself, no account needed, using the endpoint a real browser asks for extension updates:
 
-**Unpacked build (for reviewers / local dev).**
+```bash
+curl -s 'https://clients2.google.com/service/update2/crx?prodversion=140.0&acceptformat=crx2,crx3&x=id%3Ddlpaaijcnbbmlfeohlphjpnbbcnomnno%26uc'
+```
+
+`status="ok"` plus a version means it is live. `error-unknownApplication` means it is not.
+
+**Install from a release.** Every tagged version ships a zip built by CI on the
+[releases page](https://github.com/igorsaevets/page2ai-extension/releases). Unzip it and load it
+unpacked via `chrome://extensions` → Developer mode → Load unpacked.
+
+**Build from source (for reviewers / local dev).**
 
 ```bash
 git clone https://github.com/igorsaevets/page2ai-extension

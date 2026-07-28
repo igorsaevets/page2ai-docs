@@ -78,7 +78,7 @@ Material changes to this policy will be published to this page and to the extens
 
 This policy applies to the products at these canonical locations:
 
-- Chrome Web Store: [chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno](https://chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno)
+- Chrome extension ID `dlpaaijcnbbmlfeohlphjpnbbcnomnno`, submitted to the Chrome Web Store on 2026-07-21. The listing is still in review, so there is no public store page yet.
 - npm: [@page2ai/core](https://www.npmjs.com/package/@page2ai/core), [@page2ai/mcp](https://www.npmjs.com/package/@page2ai/mcp), [page2ai-mcp](https://www.npmjs.com/package/page2ai-mcp)
 - GitHub: [igorsaevets/page2ai-extension](https://github.com/igorsaevets/page2ai-extension), [igorsaevets/page2ai-core](https://github.com/igorsaevets/page2ai-core), [igorsaevets/page2ai-mcp](https://github.com/igorsaevets/page2ai-mcp)
 - Software Heritage archive: `swh:1:snp:05123c51ef9e7c0aeb06f42b1263c07a8d26999a`
