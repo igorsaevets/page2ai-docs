@@ -35,7 +35,8 @@ Every product in the suite runs entirely on the user's own machine.
 - **Reads the DOM** of the active page to extract content.
 - **Writes to your clipboard** the resulting Markdown, so you can paste it into your LLM of choice.
 - **Stores locally** (via `chrome.storage.session`) the last extraction result per tab, so re-invoking the icon retrieves a cached result. Cleared on tab close or navigation. Never sent anywhere.
-- **Does not** transmit page contents, URLs, or any other data off your machine.
+- **Makes requests to the site you are already on, and only that site.** Many documentation sites publish a machine-readable copy of a page as Markdown. When you invoke the extension it looks for one: it requests `/llms.txt`, `/docs/llms.txt` and `/llms-full.txt` on the current origin, and if the index names a Markdown file for the page you are reading, it requests that file too. These requests carry your normal cookies for that site, exactly as clicking a link on it would, because they are same-origin requests made from the page itself. The extension holds no `host_permissions`, so the browser will not let it reach any other origin. Nothing about you or the page is sent to the author or to any third party at any point. You can turn this off: set **Official Markdown** to `never` in the popup.
+- **Does not** transmit page contents, URLs, or any other data off your machine, and contacts no server belonging to the author or to anyone else.
 
 ### `@page2ai/core` npm library
 
