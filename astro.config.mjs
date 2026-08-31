@@ -90,6 +90,15 @@ export default defineConfig({
         { label: 'Install', slug: 'install' },
         { label: 'MCP server', slug: 'mcp' },
         { label: 'Comparison', slug: 'comparison' },
+        {
+          label: 'Guides',
+          items: [
+            {
+              label: 'Webpage to Markdown Chrome extension',
+              slug: 'webpage-to-markdown-chrome-extension',
+            },
+          ],
+        },
         { label: 'About the author', slug: 'about' },
         { label: 'Privacy', slug: 'privacy' },
       ],
