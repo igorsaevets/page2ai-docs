@@ -4,6 +4,9 @@ description: Convert any web page to clean Markdown for AI. Browser extension, M
 template: splash
 hero:
   tagline: Convert any web page to clean Markdown for AI. Local, deterministic, MIT-licensed.
+  image:
+    file: ../../assets/docs-hero.png
+    alt: Three Page2AI popup captures on live sites — USCIS EB-1 policy manual, Open WebUI docs, and xAI Grok models page — showing real profile, character counts, and quality ratios returned by the extension.
   actions:
     - text: Install the extension
       link: /page2ai-docs/install/
