@@ -26,7 +26,19 @@ head:
 
 `@page2ai/mcp` is an MCP server (Model Context Protocol) that exposes a single tool for turning any web page into clean Markdown. It speaks stdio, ships as an npm package, and requires no external services.
 
-## Install
+## Hosted endpoint (no install)
+
+For clients that accept a remote MCP server URL (Streamable HTTP):
+
+```
+https://page2ai-mcp-remote.vercel.app/api/mcp
+```
+
+Same code as the local server, rate-limited per IP. Convenient when you cannot run Node.js on the host (mobile clients, browser-only IDEs, hosted playgrounds).
+
+**Privacy trade-off:** URLs sent to the hosted endpoint are fetched *from that server*, so they transit infrastructure operated by the author (on Vercel). Running locally via `npx` keeps everything on your machine — prefer it when you can.
+
+## Install (local)
 
 Add to your MCP client configuration:
 
@@ -42,6 +54,23 @@ Add to your MCP client configuration:
 ```
 
 Restart the client. The `page2ai` server should show one tool: `page_to_markdown`.
+
+## Per-client setup
+
+| Client | Method |
+|---|---|
+| Claude Code | `claude mcp add page2ai -- npx -y page2ai-mcp` |
+| Claude Desktop (one-click) | Download `page2ai-mcp-<version>.mcpb` from [latest release](https://github.com/igorsaevets/page2ai-mcp/releases/latest) → Settings → Extensions → Advanced settings → Install Extension |
+| Claude Desktop (JSON) | Add the JSON block above to `claude_desktop_config.json`, restart |
+| Cursor | [One-click install deeplink](https://cursor.com/install-mcp?name=page2ai&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsInBhZ2UyYWktbWNwIl19) or add JSON to `~/.cursor/mcp.json` |
+| VS Code (GitHub Copilot) | `code --add-mcp '{"name":"page2ai","command":"npx","args":["-y","page2ai-mcp"]}'` |
+| Codex CLI | `codex mcp add page2ai -- npx -y page2ai-mcp` |
+| Gemini CLI | `gemini mcp add page2ai npx -y page2ai-mcp` |
+| Antigravity (`agy`) | `agy mcp add page2ai npx -y page2ai-mcp` |
+| Windsurf | Add JSON block to `~/.codeium/windsurf/mcp_config.json` |
+| Zed | Add to `context_servers` in `settings.json` |
+| Cline (VS Code) | Install via [`llms-install.md`](https://github.com/igorsaevets/page2ai-mcp/blob/main/llms-install.md) — Cline reads it and configures itself |
+| LobeHub | [Listing page](https://lobehub.com/mcp/igorsaevets-page2ai-mcp) — one-click enable |
 
 ## Tool: `page_to_markdown`
 
