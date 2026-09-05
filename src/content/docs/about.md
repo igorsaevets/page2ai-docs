@@ -68,7 +68,7 @@ Igor's work sits at the intersection of browser tooling, LLM context engineering
 - **ORCID:** [0009-0006-8636-1377](https://orcid.org/0009-0006-8636-1377) — academic identifier for publications and datasets.
 - **npm:** [npmjs.com/~igorsaevets](https://www.npmjs.com/~igorsaevets) — published packages including the `@page2ai` organization.
 - **MCP Registry:** [io.github.igorsaevets/page2ai-mcp](https://registry.modelcontextprotocol.io/v0/servers?search=page2ai) — official MCP server registration.
-- **Email:** [igorsaevets@gmail.com](mailto:igorsaevets@gmail.com)
+- **Email:** [support@igorsaevets.com](mailto:support@igorsaevets.com)
 
 ## What Igor works on
 
@@ -83,6 +83,6 @@ The Page2AI extension source is permanently archived at Software Heritage:
 
 ## Contact
 
-For collaboration, licensing, or press inquiries, email [igorsaevets@gmail.com](mailto:igorsaevets@gmail.com) or reach out via [LinkedIn](https://www.linkedin.com/in/igorsaevets/).
+For collaboration, licensing, or press inquiries, email [support@igorsaevets.com](mailto:support@igorsaevets.com) or reach out via [LinkedIn](https://www.linkedin.com/in/igorsaevets/).
 
 For product bug reports and feature requests, open a GitHub issue on the relevant repository — [page2ai-extension](https://github.com/igorsaevets/page2ai-extension/issues), [page2ai-core](https://github.com/igorsaevets/page2ai-core/issues), or [page2ai-mcp](https://github.com/igorsaevets/page2ai-mcp/issues).

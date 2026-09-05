@@ -19,7 +19,7 @@ head:
       }
 ---
 
-**Effective date:** 2026-07-24. **Applies to:** Page2AI Chrome extension (Manifest V3), `@page2ai/core` npm package, `@page2ai/mcp` MCP server, and the unscoped `page2ai-mcp` wrapper. **Author:** Igor Saevets (igorsaevets@gmail.com, ORCID 0009-0006-8636-1377).
+**Effective date:** 2026-07-24. **Applies to:** Page2AI Chrome extension (Manifest V3), `@page2ai/core` npm package, `@page2ai/mcp` MCP server, and the unscoped `page2ai-mcp` wrapper. **Author:** Igor Saevets (support@igorsaevets.com, ORCID 0009-0006-8636-1377).
 
 ## Summary
 
@@ -72,7 +72,7 @@ Material changes to this policy will be published to this page and to the extens
 
 ## Contact
 
-- Email: igorsaevets@gmail.com
+- Email: support@igorsaevets.com
 - GitHub: [github.com/igorsaevets/page2ai-extension/issues](https://github.com/igorsaevets/page2ai-extension/issues)
 
 ## Source

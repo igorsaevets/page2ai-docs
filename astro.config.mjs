@@ -77,7 +77,7 @@ export default defineConfig({
         {
           icon: 'email',
           label: 'Email Igor',
-          href: 'mailto:igorsaevets@gmail.com',
+          href: 'mailto:support@igorsaevets.com',
         },
       ],
       editLink: {
