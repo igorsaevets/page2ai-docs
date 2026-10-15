@@ -105,8 +105,8 @@ Fetch a URL and convert the resulting HTML to Markdown.
 
 The server enforces the following at runtime:
 
-- **HTTPS only** — schemes other than `https:` are rejected. `http:`, `file:`, `data:`, and `javascript:` are blocked.
-- **SSRF guard** — checked on the URL and on every redirect hop, after DNS resolution. Blocks `localhost`, loopback (`127.0.0.0/8`, `::1`), `0.0.0.0/8`, private IPv4 ranges (`10/8`, `172.16/12`, `192.168/16`), link-local (`169.254/16`, including AWS/GCP metadata endpoints, and `fe80::`), CGNAT `100.64.0.0/10` (this includes Tailscale addresses), IPv6 unique-local (`fc00::/7`), IPv4-mapped IPv6 and `metadata.google.internal`. A page on your own intranet or tailnet therefore cannot be read through this server: fetch the HTML yourself and convert it with `htmlToMarkdown` from [`@page2ai/core`](https://www.npmjs.com/package/@page2ai/core), which accepts whole documents and fragments.
+- **http and https only** — every other scheme (`file:`, `data:`, `javascript:`, `ftp:`) is rejected.
+- **SSRF guard** — checked on the URL and on every redirect hop, after DNS resolution. Blocks `localhost`, loopback (`127.0.0.0/8`, `::1`), `0.0.0.0/8`, private IPv4 ranges (`10/8`, `172.16/12`, `192.168/16`), link-local (`169.254/16`, including AWS/GCP metadata endpoints, and `fe80::/10`), CGNAT `100.64.0.0/10` (this includes Tailscale addresses), IPv6 unique-local (`fc00::/7`), IPv4-mapped IPv6, the unspecified address `::`, and the hostnames `metadata` and `metadata.google.internal`. A page on your own intranet or tailnet therefore cannot be read through this server: fetch the HTML yourself and convert it with `htmlToMarkdown` from [`@page2ai/core`](https://www.npmjs.com/package/@page2ai/core), which accepts whole documents and fragments.
 - **Redirect validation** — after following redirects, the final URL is re-validated against the same rules.
 - **10 MB size cap** — responses larger than 10 MB are rejected.
 - **Timeout** — enforced via `AbortController`; default 15 s, cap 60 s.
