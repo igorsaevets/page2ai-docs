@@ -24,9 +24,9 @@ Pick the surface that matches how you want to use Page2AI.
 
 The recommended way for humans clipping one page at a time.
 
-**Chrome Web Store: submitted 2026-07-21, still in review.** There is nothing to install from the
-store yet. Google's guidance is that a review can take a few weeks. Check the current state
-yourself, no account needed, using the endpoint a real browser asks for extension updates:
+**Chrome Web Store: live since 2026-07-30.** Install it from the
+[store listing](https://chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno). To see the
+published version yourself, no account needed, ask the endpoint a real browser uses for extension updates:
 
 ```bash
 curl -s 'https://clients2.google.com/service/update2/crx?prodversion=140.0&acceptformat=crx2,crx3&x=id%3Ddlpaaijcnbbmlfeohlphjpnbbcnomnno%26uc'
