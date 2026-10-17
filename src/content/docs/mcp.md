@@ -111,7 +111,7 @@ The server enforces the following at runtime:
 - **10 MB size cap** — responses larger than 10 MB are rejected.
 - **Timeout** — enforced via `AbortController`; default 15 s, cap 60 s.
 - **UTF-8 decoding** — the body is decoded as UTF-8 whatever charset the server declares, so a page in another encoding (Windows-1251, Shift_JIS) comes out garbled rather than refused.
-- **Markdown twin first** — the server first asks for `<url>.md` (Mintlify and other docs platforms serve the page as Markdown there) and returns it when it answers with Markdown; a server that answers the request itself with `text/markdown` is returned as-is too. Up to `@page2ai/core` 0.1.12 these two paths add the frontmatter even with `include_frontmatter: false`; the fix is on core `main` and ships in its next release.
+- **Markdown twin first** — the server first asks for `<url>.md` (Mintlify and other docs platforms serve the page as Markdown there) and returns it when it answers with Markdown; a server that answers the request itself with `text/markdown` is returned as-is too. Up to `@page2ai/core` 0.1.12 (`@page2ai/mcp` 0.2.7) these two paths added the frontmatter even with `include_frontmatter: false`; core 0.1.13 and `@page2ai/mcp` 0.2.8 leave it out. The Markdown a site serves can open with its own frontmatter (Mintlify's names `title`, `url` and `description`): that block is part of the page and comes back either way, so with `include_frontmatter: true` the answer holds two YAML blocks, the server's first.
 
 ## Verify locally
 
