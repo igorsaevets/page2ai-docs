@@ -48,10 +48,10 @@ Every product in the suite runs entirely on the user's own machine.
 ### `@page2ai/mcp` MCP server
 
 - Runs as a stdio process spawned by your MCP client (Claude Desktop, Cursor, Windsurf, Zed).
-- Exposes one tool, `page_to_markdown`. When your agent calls it, the server fetches the URL your agent provided and returns the extracted Markdown to the agent.
+- Exposes one tool, `page_to_markdown`. When your agent calls it, the server fetches the URL your agent provided, following its redirects, and returns the extracted Markdown to the agent; it requests nothing else. Up to `@page2ai/mcp` 0.2.8 (`@page2ai/core` 0.1.13) it first requested that URL with `.md` added, on the same site.
 - Server-side safety rules:
-  - **HTTPS only** — `http:`, `file:`, `data:`, `javascript:` schemes are rejected.
-  - **SSRF guard** — blocks loopback, private IPv4 (`10/8`, `172.16/12`, `192.168/16`), link-local (`169.254/16` including cloud metadata endpoints), IPv6 loopback and private ranges. Applied both pre-request and post-redirect on the final URL.
+  - **http and https only** — `file:`, `data:`, `javascript:` and every other scheme are rejected.
+  - **SSRF guard** — blocks loopback, private IPv4 (`10/8`, `172.16/12`, `192.168/16`), link-local (`169.254/16` including cloud metadata endpoints), IPv6 loopback and private ranges. Applied before the request and on every redirect hop, after DNS resolution.
   - **10 MB response cap.**
   - **Timeout** enforced by `AbortController`, default 15 s, hard cap 60 s.
   - **UTF-8 only** on response body.
@@ -61,7 +61,7 @@ Every product in the suite runs entirely on the user's own machine.
 
 None. The products do not embed any third-party SDKs, trackers, analytics, remote configuration services, feature-flag services, or CDNs.
 
-The one exception: `@page2ai/mcp` depends on `@modelcontextprotocol/sdk` from Anthropic. That SDK is used only to speak the MCP protocol over stdio to the client. It makes no network calls in the code path this server exercises.
+The one exception: `@page2ai/mcp` depends on `@modelcontextprotocol/server` from Anthropic. That SDK is used only to speak the MCP protocol over stdio to the client. It makes no network calls in the code path this server exercises.
 
 ## Children's privacy
 
