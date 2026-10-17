@@ -53,13 +53,18 @@ Output lands in `.output/page2ai-extension-<version>-chrome.zip`. Load unpacked 
 
 ## Firefox extension (Manifest V3)
 
+**Firefox Add-ons (AMO): listed since 2026-07-31.** Install it from the
+[AMO listing](https://addons.mozilla.org/firefox/addon/page2ai-webpage-to-markdown/). To see the published version
+yourself, no account needed: `curl -s "https://addons.mozilla.org/api/v5/addons/addon/page2ai@igorsaevets.com/"`
+and read `current_version.version`.
+
 Build from source:
 
 ```bash
 npx wxt zip -b firefox
 ```
 
-Load in `about:debugging` → This Firefox → Load Temporary Add-on → pick `manifest.json` from `.output/firefox-mv3/`. AMO listing is submitted; awaiting review.
+Load in `about:debugging` → This Firefox → Load Temporary Add-on → pick `manifest.json` from `.output/firefox-mv3/`.
 
 ## MCP server (agents)
 
