@@ -49,17 +49,23 @@ head:
       }
 ---
 
-## Three ways to use it
+## Which Page2AI do I need?
 
-Page2AI is a small product suite for turning live web pages into LLM-ready Markdown, without sending page contents to a third-party service.
+Page2AI is a small product suite for turning live web pages into LLM-ready Markdown, without sending page contents to a third-party service. Pick it by the job:
 
-| Surface | Best for | Install |
+| Your job | Use | Start |
 |---|---|---|
-| **Chrome extension** (also Firefox MV3) | Humans, one page at a time | Chrome Web Store or unpacked build |
-| **MCP server** `@page2ai/mcp` | Agents (Claude Desktop, Cursor, Windsurf, Zed) | `npx -y page2ai-mcp` |
-| **Library** `@page2ai/core` | Node and browser code | `npm i @page2ai/core` |
+| Paste the page you are reading into ChatGPT, Claude or Gemini | **Browser extension** (Chrome, Firefox) | [Install](/page2ai-docs/install/#chrome-extension-manifest-v3), then press `Alt+Shift+M` or click the toolbar icon: the Markdown is on your clipboard |
+| Let an agent (Claude Code, Cursor, Codex, any MCP client) read public web pages as Markdown | **MCP server**, on your machine | `npx -y page2ai-mcp` in the client's MCP config ([setup](/page2ai-docs/mcp/)) |
+| Have ChatGPT read a public page as Markdown | **ChatGPT plugin** | Plugins → Page2AI → Install plugin ([steps](/page2ai-docs/install/#chatgpt-plugin)) |
+| Convert a page that you or your agent already loaded: your own app, a page behind a sign-in, an intranet or tailnet host | **MCP tool with `html`**, or the library | Pass the page's HTML as `html` together with its `url`, or call `htmlToMarkdown` in Node |
+| Convert HTML in your own code, or save the Markdown to a file | **Library** `@page2ai/core` | `npm i @page2ai/core` ([example](/page2ai-docs/install/#npm-library-node-or-browser-code)) |
 
-The extension runs the full pipeline against the live DOM, so it handles authenticated pages, dynamic tab widgets, and pages that require user session cookies. The MCP server and library run against static HTML for now; SPA rendering ships in v0.3.
+**What the server-side paths cannot do.** The MCP server, the ChatGPT plugin and the library's `fetchAndConvert` fetch without cookies and run no page scripts: a page behind a sign-in comes back as its login page, and a page that builds its content with JavaScript in the browser comes back nearly empty. The extension reads the page as your browser shows it. The MCP server also refuses private, loopback and tailnet addresses; for those, fetch the HTML yourself and pass it in.
+
+**Why not the agent's own web reader?** For most fetches, Claude Code's built-in WebFetch runs a separate model call on the page and gives the agent that call's answer, not the page; its documentation calls this ["lossy by design"](https://code.claude.com/docs/en/tools-reference). `page_to_markdown` returns the page itself: headings, tables, code blocks with their language, and each tab of a tabbed code sample as its own section.
+
+**Personal data.** Whatever an MCP tool returns enters the agent's context. If a page carries personal data that must not reach the model, convert it with the library, write the Markdown to a file, and give the agent only the file's path and size.
 
 ## What it does
 
@@ -71,7 +77,7 @@ The extension runs the full pipeline against the live DOM, so it handles authent
 
 ## Zero data collection
 
-Page2AI does not send page contents anywhere. The extension has `activeTab`, `scripting`, `clipboardWrite`, and `storage` permissions and no `host_permissions`. The MCP server and library make no network calls beyond the URL you ask them to fetch, and they enforce SSRF guards against private IP ranges and non-HTTP schemes.
+Page2AI does not send page contents anywhere. The extension has `activeTab`, `scripting`, `clipboardWrite`, and `storage` permissions and no `host_permissions`. The MCP server and library make no network calls beyond the URL you ask them to fetch, and they enforce SSRF guards against private IP ranges and non-HTTP schemes. The hosted endpoint behind the ChatGPT plugin fetches the URL from its own server: see its [privacy trade-off](/page2ai-docs/mcp/#hosted-endpoint-no-install).
 
 See [Privacy](/page2ai-docs/privacy/) for details.
 

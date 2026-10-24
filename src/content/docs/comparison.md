@@ -31,12 +31,12 @@ Different tools sit in different corners of the same problem space. This page is
 | **Frontmatter (OG, JSON-LD, article:*)** | Yes, full | Partial | Partial | No | Configurable | No |
 | **Zero network egress** | Yes | No | No | Yes | Yes for local files | Yes |
 | **SSRF guard (server mode)** | Yes (SDK) | N/A | N/A | N/A | Manual | N/A |
-| **SPA / React sites** | Extension yes; Node adapter in v0.3 | Yes (headless) | Yes (LLM) | No | Yes | Yes |
+| **SPA / React sites** | Extension yes; MCP server and library read the HTML the server sends (no page scripts) | Yes (headless) | Yes (LLM) | No | Yes | Yes |
 | **Preferred surface** | Chrome extension, MCP tool | Server-side scraping at scale | Quick one-off URLs | Doc → LLM pipelines | Custom Python crawlers | Personal archive |
 
 ## When to pick what
 
-**Page2AI** is optimized for one specific job: turning a live web page into token-efficient Markdown, in the browser, without touching a third-party service. It's the right pick when the page is behind a login, when you want to preserve session cookies, or when you're wiring an MCP tool into an agent.
+**Page2AI** is optimized for one specific job: turning a live web page into token-efficient Markdown, in the browser, without touching a third-party service. It's the right pick when the page is behind a login or needs your session cookies (the extension reads the page you have open), or when you're wiring an MCP tool into an agent (public pages, or HTML the agent already loaded).
 
 **Firecrawl** and **Jina Reader** are the right pick for server-side crawling at scale, or for one-off ad-hoc URLs. Both are excellent for RAG pipelines that ingest thousands of pages nightly.
 
