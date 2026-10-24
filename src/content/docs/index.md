@@ -55,10 +55,11 @@ Page2AI is a small product suite for turning live web pages into LLM-ready Markd
 
 | Your job | Use | Start |
 |---|---|---|
-| Paste the page you are reading into ChatGPT, Claude or Gemini | **Browser extension** (Chrome, Firefox) | [Install](/page2ai-docs/install/#chrome-extension-manifest-v3), then press `Alt+Shift+M` or click the toolbar icon: the Markdown is on your clipboard |
+| Paste the page you are reading into ChatGPT, Claude or Gemini | **Browser extension** (Chrome, Firefox) | [Install](/page2ai-docs/install/#chrome-extension-manifest-v3), press `Alt+Shift+M` or click the toolbar icon, then Enter or **Extract Markdown**: the Markdown is on your clipboard |
 | Let an agent (Claude Code, Cursor, Codex, any MCP client) read public web pages as Markdown | **MCP server**, on your machine | `npx -y page2ai-mcp` in the client's MCP config ([setup](/page2ai-docs/mcp/)) |
 | Have ChatGPT read a public page as Markdown | **ChatGPT plugin** | Plugins → Page2AI → Install plugin ([steps](/page2ai-docs/install/#chatgpt-plugin)) |
 | Convert a page that you or your agent already loaded: your own app, a page behind a sign-in, an intranet or tailnet host | **MCP tool with `html`**, or the library | Pass the page's HTML as `html` together with its `url`, or call `htmlToMarkdown` in Node |
+| Let an agent that drives a browser (Chrome DevTools MCP, Playwright MCP) get the extension's Markdown of the page that browser shows | **Agent script** from the GitHub release | `page2ai-agent.fn.js` or `page2ai-agent.js` ([steps](/page2ai-docs/install/#agent-script-browser-automation)) |
 | Convert HTML in your own code, or save the Markdown to a file | **Library** `@page2ai/core` | `npm i @page2ai/core` ([example](/page2ai-docs/install/#npm-library-node-or-browser-code)) |
 
 **What the server-side paths cannot do.** The MCP server, the ChatGPT plugin and the library's `fetchAndConvert` fetch without cookies and run no page scripts: a page behind a sign-in comes back as its login page, and a page that builds its content with JavaScript in the browser comes back nearly empty. The extension reads the page as your browser shows it. The MCP server also refuses private, loopback and tailnet addresses; for those, fetch the HTML yourself and pass it in.
@@ -73,7 +74,7 @@ Page2AI is a small product suite for turning live web pages into LLM-ready Markd
 - Preserves headings, code blocks with language hints, links, tables, and blockquotes
 - Emits YAML frontmatter with page metadata (`title`, `source`, `captured_at`, OpenGraph, Twitter, JSON-LD, `article:published_time`, etc.)
 - Deduplicates content across tab widgets on documentation sites (Mintlify, Docusaurus, Starlight, Nextra, Fumadocs)
-- Runs entirely in the user's browser or on the user's machine
+- Runs in the user's browser or on the user's machine; the one exception is the hosted endpoint behind the ChatGPT plugin, below
 
 ## Zero data collection
 

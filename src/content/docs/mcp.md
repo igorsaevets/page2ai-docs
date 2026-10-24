@@ -59,7 +59,7 @@ Restart the client. The `page2ai` server should show one tool: `page_to_markdown
 
 | Client | Method |
 |---|---|
-| Claude Code | `claude mcp add page2ai -- npx -y page2ai-mcp` |
+| Claude Code | `claude mcp add --scope user page2ai -- npx -y page2ai-mcp` (`--scope user`: every project on this machine; without it, only the current project gets the server) |
 | Claude Desktop (one-click) | Download `page2ai-mcp-<version>.mcpb` from [latest release](https://github.com/igorsaevets/page2ai-mcp/releases/latest) → Settings → Extensions → Advanced settings → Install Extension |
 | Claude Desktop (JSON) | Add the JSON block above to `claude_desktop_config.json`, restart |
 | Cursor | [One-click install deeplink](https://cursor.com/install-mcp?name=page2ai&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsInBhZ2UyYWktbWNwIl19) or add JSON to `~/.cursor/mcp.json` |

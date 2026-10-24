@@ -23,16 +23,18 @@ Different tools sit in different corners of the same problem space. This page is
 
 | Feature | Page2AI | Firecrawl | Jina Reader | markitdown | crawl4ai | SingleFile / MarkDownload |
 |---|---|---|---|---|---|---|
-| **License** | MIT | AGPL / SaaS | Proprietary SaaS | MIT | Apache 2.0 | MIT / MIT (unmaintained since 2024) |
-| **Runtime** | Browser or Node | Cloud API | Cloud API | Local Python | Local Python | Browser |
-| **Cost per page** | $0 | Free tier 500/mo, then paid | Free (fair use) | $0 | $0 | $0 |
-| **Sees authenticated pages** | Yes (extension) | Only with session proxy | No | N/A (offline files) | With headless browser | Yes |
-| **Tab-widget dedup** | Yes (DOM-position-aware) | Configurable (JS-render) | LLM-based | No | Depends on adapter | No |
+| **License** | MIT | AGPL / SaaS | Apache 2.0, also a hosted API | MIT | Apache 2.0 | AGPL 3.0 / Apache 2.0 (no release since 2024-08) |
+| **Runtime** | Browser or Node | Cloud API | Cloud API or self-hosted | Local Python | Local Python | Browser |
+| **Cost per page** | $0 | Free tier 1,000 pages/mo, then paid | Free (fair use) | $0 | $0 | $0 |
+| **Sees authenticated pages** | Yes (extension) | Only with session proxy | With forwarded cookies (`x-set-cookie`) | N/A (offline files) | With headless browser | Yes |
+| **Tab-widget dedup** | Yes (DOM-position-aware) | Configurable (JS-render) | Not documented | No | Depends on adapter | No |
 | **Frontmatter (OG, JSON-LD, article:*)** | Yes, full | Partial | Partial | No | Configurable | No |
 | **Zero network egress** | Yes | No | No | Yes | Yes for local files | Yes |
 | **SSRF guard (server mode)** | Yes (SDK) | N/A | N/A | N/A | Manual | N/A |
-| **SPA / React sites** | Extension yes; MCP server and library read the HTML the server sends (no page scripts) | Yes (headless) | Yes (LLM) | No | Yes | Yes |
+| **SPA / React sites** | Extension yes; MCP server and library read the HTML the server sends (no page scripts) | Yes (headless) | Yes (headless Chrome) | No | Yes | Yes |
 | **Preferred surface** | Chrome extension, MCP tool | Server-side scraping at scale | Quick one-off URLs | Doc → LLM pipelines | Custom Python crawlers | Personal archive |
+
+Checked on 2026-10-24: the licenses (each project's GitHub repository), Firecrawl's free tier (its pricing page) and the Jina Reader column (its README). The other cells are as of August 2026.
 
 ## When to pick what
 
@@ -44,7 +46,7 @@ Different tools sit in different corners of the same problem space. This page is
 
 **crawl4ai** is the right pick when you're building a custom Python crawler and want a modular pipeline you can extend.
 
-**SingleFile** and **MarkDownload** optimize for human-readable archives (SingleFile) and personal note capture (MarkDownload, though unmaintained since 2024). Neither targets LLM ingestion specifically.
+**SingleFile** and **MarkDownload** optimize for human-readable archives (SingleFile) and personal note capture (MarkDownload, though with no release since August 2024). Neither targets LLM ingestion specifically.
 
 ## Benchmark
 

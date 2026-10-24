@@ -25,7 +25,7 @@ head:
 
 Page2AI does not collect, transmit, sell, share, or store any personal data. There is no telemetry, no analytics, no crash reporting, no A/B testing, and no third-party services embedded in any of the products.
 
-Every product in the suite runs entirely on the user's own machine.
+Every product listed above runs entirely on the user's own machine. The hosted endpoint behind the ChatGPT plugin (`page2ai-mcp-remote.vercel.app`) runs on a server instead and has its own policy: [hosted endpoint privacy policy](https://page2ai-mcp-remote.vercel.app/privacy.html).
 
 ## What each surface does with your data
 
@@ -80,7 +80,7 @@ Material changes to this policy will be published to this page and to the extens
 
 This policy applies to the products at these canonical locations:
 
-- Chrome extension ID `dlpaaijcnbbmlfeohlphjpnbbcnomnno`, submitted to the Chrome Web Store on 2026-07-21. The listing is still in review, so there is no public store page yet.
+- Chrome extension ID `dlpaaijcnbbmlfeohlphjpnbbcnomnno`, on the [Chrome Web Store](https://chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno) since 2026-07-30.
 - npm: [@page2ai/core](https://www.npmjs.com/package/@page2ai/core), [@page2ai/mcp](https://www.npmjs.com/package/@page2ai/mcp), [page2ai-mcp](https://www.npmjs.com/package/page2ai-mcp)
 - GitHub: [igorsaevets/page2ai-extension](https://github.com/igorsaevets/page2ai-extension), [igorsaevets/page2ai-core](https://github.com/igorsaevets/page2ai-core), [igorsaevets/page2ai-mcp](https://github.com/igorsaevets/page2ai-mcp)
 - Software Heritage archive: `swh:1:snp:05123c51ef9e7c0aeb06f42b1263c07a8d26999a`
