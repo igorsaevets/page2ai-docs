@@ -1,7 +1,10 @@
 # robots.txt for Page2AI documentation
 # https://igorsaevets.github.io/page2ai-docs/
+#
+# Crawlers do not read this file. A robots.txt counts only in the top-level path of a host
+# (RFC 9309, section 2.3), and this site is a GitHub Pages project site under /page2ai-docs/.
+# The Sitemap line that stood here from 2026-07-23 to 2026-10-24 was never read.
+# How search engines get the sitemap instead: README.md, section "Search engines".
 
 User-agent: *
 Allow: /
-
-Sitemap: https://igorsaevets.github.io/page2ai-docs/sitemap-index.xml

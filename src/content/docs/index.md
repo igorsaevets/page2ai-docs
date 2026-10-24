@@ -83,6 +83,7 @@ See [Privacy](/page2ai-docs/privacy/) for details.
 
 ## Related
 
+- Comparisons: [how Page2AI compares to other converters](/page2ai-docs/comparison/) · [Webpage to Markdown Chrome extension: 6 options compared](/page2ai-docs/webpage-to-markdown-chrome-extension/)
 - Source: [github.com/igorsaevets/page2ai-extension](https://github.com/igorsaevets/page2ai-extension)
 - Software Heritage archive: `swh:1:snp:05123c51ef9e7c0aeb06f42b1263c07a8d26999a`
 - MCP Registry: [io.github.igorsaevets/page2ai-mcp](https://registry.modelcontextprotocol.io/v0/servers?search=page2ai)
