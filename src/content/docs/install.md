@@ -18,7 +18,14 @@ head:
       }
 ---
 
-Pick the surface that matches how you want to use Page2AI.
+Pick the surface that matches the job:
+
+- **Pasting the page you are reading into a chat** → the [browser extension](#chrome-extension-manifest-v3) (Chrome, [Firefox](#firefox-extension-manifest-v3)).
+- **An agent reading public pages** (Claude Code, Cursor, Codex, any MCP client) → the [MCP server](#mcp-server-agents).
+- **ChatGPT reading a public page** → the [ChatGPT plugin](#chatgpt-plugin).
+- **HTML that you or your agent already loaded** (your own app, a page behind a sign-in, an intranet or tailnet host) → the MCP tool's [`html` argument](/page2ai-docs/mcp/#tool-page_to_markdown), or the [library](#npm-library-node-or-browser-code).
+
+What each one cannot do: [Which Page2AI do I need?](/page2ai-docs/#which-page2ai-do-i-need)
 
 ## Chrome extension (Manifest V3)
 
@@ -91,9 +98,21 @@ The unscoped `page2ai-mcp` package is a thin wrapper that reexports `@page2ai/mc
 npx -y page2ai-mcp
 ```
 
-The server starts on stdio and responds to `initialize` and `tools/list`. Ctrl+C to exit.
+The server starts on stdio and responds to `initialize` and `tools/list`. Ctrl+C to exit. It needs Node.js 20 or later.
 
 Full details: [MCP server page](/page2ai-docs/mcp/).
+
+## ChatGPT (plugin)
+
+Page2AI is in ChatGPT's plugin directory: [Page2AI · Public web page to Markdown](https://chatgpt.com/plugins/plugin_asdk_app_6a94ee278a70819185e417020a0450f6). Page2AI itself needs no account or key.
+
+1. In ChatGPT on the web, desktop or mobile, open **Plugins** in the sidebar and find Page2AI, or open the link above.
+2. Select **Install plugin**.
+3. In a chat, give ChatGPT a page address and ask for the page as Markdown. ChatGPT uses an installed plugin when it fits the request; to pick it yourself, type `@` and choose Page2AI, or select **+** and enter its name.
+
+Whether you can install a plugin depends on your plan and, in a workspace, on what its administrators allow ([OpenAI Help: Plugins in ChatGPT](https://help.openai.com/en/articles/20001256)).
+
+The plugin reads **public pages only**. It calls the [hosted endpoint](/page2ai-docs/mcp/#hosted-endpoint-no-install), which fetches the URL from its own server, without your cookies, and runs no page scripts: a page behind a sign-in comes back as its login page, and a page that JavaScript builds in the browser comes back nearly empty. For those, copy the page with the [extension](#chrome-extension-manifest-v3) and paste it into the chat. The plugin takes a URL only and waits at most 20 seconds for a page.
 
 ## npm library (Node or browser code)
 
@@ -118,7 +137,7 @@ console.log(result.markdown);
 
 Both `htmlToMarkdown` (sync) and `fetchAndConvert` (async, with SSRF guard + timeout) are exported.
 
-Node ≥ 18. Zero external API calls; uses [linkedom](https://github.com/WebReflection/linkedom) for parsing.
+Node 18.17 or later. Zero external API calls; uses [linkedom](https://github.com/WebReflection/linkedom) for parsing.
 
 ---
 
