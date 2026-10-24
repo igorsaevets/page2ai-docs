@@ -37,7 +37,7 @@ Markdown is the middle ground the LLM ecosystem converged on: readable to humans
 
 ### 1. Page2AI
 
-- **What it does.** One click on the toolbar, or press Alt+Shift+M — clean Markdown for the current page copies to the clipboard.
+- **What it does.** Click the toolbar icon or press Alt+Shift+M, then Enter or **Extract Markdown**: clean Markdown for the current page goes to the clipboard.
 - **Strong at.** Code blocks with language hints (`\`\`\`python`, `\`\`\`js`, ...) preserved. Tables preserved. Hidden tab panels on docs sites (Anthropic docs, Google devsite, React, Vue, MDN) captured, not lost. Site-specific handling for Reddit, X/Twitter, StackOverflow, GitHub, MDN.
 - **Runs.** 100% local — no server, no accounts, no telemetry. MIT-licensed, source on [github.com/igorsaevets/page2ai-extension](https://github.com/igorsaevets/page2ai-extension).
 - **Also has.** An optional MCP server ([`@page2ai/mcp`](https://www.npmjs.com/package/@page2ai/mcp)) so an AI agent can call the same extraction over stdio or HTTP. A Firefox build on [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/page2ai-webpage-to-markdown/).
@@ -83,7 +83,7 @@ The matrix below is what a first-time user actually cares about. It is derived f
 |---|---|---|---|---|---|---|
 | **Chrome installed** | Yes | Yes | Yes | Yes | Removed | Yes |
 | **Firefox installed** | Yes | No | No | Some forks | Yes | Yes |
-| **License** | MIT | Closed | Closed | Mixed | MIT | MIT |
+| **License** | MIT | Closed | Closed | Mixed | Apache 2.0 | MIT |
 | **100% local** | Yes | Yes | Yes | Yes | Yes | Yes |
 | **Names ChatGPT/Claude/Gemini in listing** | Yes | No | Yes | No | No | No |
 | **Code blocks preserve language hint** | Yes | Partial | Partial | Partial | Yes | Yes |
@@ -114,6 +114,6 @@ No account, no API key, no telemetry. Source on [GitHub](https://github.com/igor
 
 ## Notes on this comparison
 
-- The listings and behaviour above were checked on 2026-08-31 against the live extension pages. Page2AI's own keyboard shortcut and MCP install command were corrected on 2026-10-24. If you spot a claim that has changed, [open an issue](https://github.com/igorsaevets/page2ai-docs/issues) — the docs are open source too.
+- The listings and behaviour above were checked on 2026-08-31 against the live extension pages. Page2AI's own keyboard shortcut and MCP install command, and MarkDownload's license (Apache 2.0, per its GitHub repository), were corrected on 2026-10-24. If you spot a claim that has changed, [open an issue](https://github.com/igorsaevets/page2ai-docs/issues) — the docs are open source too.
 - "Hidden tab panels captured" was tested on the Anthropic docs page for the Messages API, whose language-picker tabs (Python / TypeScript / cURL / ...) are the same DOM widget across the site. Extensions that render only the visible tab lose 4 of 5 code samples on every page. Page2AI's fix for this is in [issue #11](https://github.com/igorsaevets/page2ai-extension/issues/11).
 - The MarkDownload removal date is confirmed by the [Obsidian community thread](https://forum.obsidian.md/t/markdownload-was-removed-from-google-web-store/97655) — the Chrome listing itself is gone, and the Firefox version stays on AMO.

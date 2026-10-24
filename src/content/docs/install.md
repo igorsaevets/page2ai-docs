@@ -24,6 +24,7 @@ Pick the surface that matches the job:
 - **An agent reading public pages** (Claude Code, Cursor, Codex, any MCP client) → the [MCP server](#mcp-server-agents).
 - **ChatGPT reading a public page** → the [ChatGPT plugin](#chatgpt-plugin).
 - **HTML that you or your agent already loaded** (your own app, a page behind a sign-in, an intranet or tailnet host) → the MCP tool's [`html` argument](/page2ai-docs/mcp/#tool-page_to_markdown), or the [library](#npm-library-node-or-browser-code).
+- **An agent that drives a browser** (Chrome DevTools MCP, Playwright MCP) and wants the extension's Markdown of the page in it → the [agent script](#agent-script-browser-automation).
 
 What each one cannot do: [Which Page2AI do I need?](/page2ai-docs/#which-page2ai-do-i-need)
 
@@ -56,7 +57,7 @@ npx wxt zip -b chrome
 
 Output lands in `.output/page2ai-extension-<version>-chrome.zip`. Load unpacked from `.output/chrome-mv3/` via `chrome://extensions` → Developer mode → Load unpacked.
 
-**Trigger extraction.** Press `Alt+Shift+M` on any page, or click the toolbar icon. Extracted Markdown is copied to your clipboard.
+**Trigger extraction.** Press `Alt+Shift+M` on any page, or click the toolbar icon, to open the popup, then press Enter or select **Extract Markdown**. When it is done, the Markdown is on your clipboard.
 
 ## Firefox extension (Manifest V3)
 
@@ -95,10 +96,12 @@ The unscoped `page2ai-mcp` package is a thin wrapper that reexports `@page2ai/mc
 **Verify.** From a shell:
 
 ```bash
-npx -y page2ai-mcp
+npx -y page2ai-mcp --version
 ```
 
-The server starts on stdio and responds to `initialize` and `tools/list`. Ctrl+C to exit. It needs Node.js 20 or later.
+It prints the version and exits (`--version` needs 0.6.2 or later). It needs Node.js 20 or later.
+
+Without `--version` the server starts on stdio, prints `[page2ai-mcp] server <version> ready on stdio` to stderr and waits for an MCP client: that is normal, Ctrl+C to exit. The lines about Agent Bridge that follow it are for a feature of extension 1.6.0, which is not in the stores yet; you can ignore them. To see the server answer a request, run the [`initialize` example](/page2ai-docs/mcp/#verify-locally).
 
 Full details: [MCP server page](/page2ai-docs/mcp/).
 
@@ -113,6 +116,18 @@ Page2AI is in ChatGPT's plugin directory: [Page2AI · Public web page to Markdow
 Whether you can install a plugin depends on your plan and, in a workspace, on what its administrators allow ([OpenAI Help: Plugins in ChatGPT](https://help.openai.com/en/articles/20001256)).
 
 The plugin reads **public pages only**. It calls the [hosted endpoint](/page2ai-docs/mcp/#hosted-endpoint-no-install), which fetches the URL from its own server, without your cookies, and runs no page scripts: a page behind a sign-in comes back as its login page, and a page that JavaScript builds in the browser comes back nearly empty. For those, copy the page with the [extension](#chrome-extension-manifest-v3) and paste it into the chat. The plugin takes a URL only and waits at most 20 seconds for a page.
+
+## Agent script (browser automation)
+
+For an agent that already drives a browser through Chrome DevTools MCP or Playwright MCP. The script is the extension's own extractor as a plain page script: the agent gets the Markdown the popup would give for the page that browser shows, a page behind a sign-in too when that browser is signed in, without installing the extension. It reads only the page and makes no network request.
+
+Every release since 1.5.0 ships it on the [releases page](https://github.com/igorsaevets/page2ai-extension/releases/latest):
+
+- `page2ai-agent.fn.js` for Chrome DevTools MCP (`evaluate_script` with `sourcePath`);
+- `page2ai-agent.js` for Playwright MCP (`--init-script`, then `browser_evaluate`);
+- `page2ai-agent.SHA256SUMS`: check both files with `sha256sum -c page2ai-agent.SHA256SUMS`.
+
+The result is one JSON object with the Markdown in `markdown`. Have the browser server write it to a file (`filePath` in Chrome DevTools MCP, `filename` in Playwright MCP), then `jq -r .markdown result.json > page.md`. Steps for both servers: [agent/README.md](https://github.com/igorsaevets/page2ai-extension/blob/v1.5.1/agent/README.md).
 
 ## npm library (Node or browser code)
 
