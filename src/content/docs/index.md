@@ -59,6 +59,7 @@ Page2AI is a small product suite for turning live web pages into LLM-ready Markd
 | Let an agent (Claude Code, Cursor, Codex, any MCP client) read public web pages as Markdown | **MCP server**, on your machine | `npx -y page2ai-mcp` in the client's MCP config ([setup](/page2ai-docs/mcp/)) |
 | Have ChatGPT read a public page as Markdown | **ChatGPT plugin** | Plugins → Page2AI → Install plugin ([steps](/page2ai-docs/install/#chatgpt-plugin)) |
 | Convert a page that you or your agent already loaded: your own app, a page behind a sign-in, an intranet or tailnet host | **MCP tool with `html`**, or the library | Pass the page's HTML as `html` together with its `url`, or call `htmlToMarkdown` in Node |
+| Let an agent read a page behind a sign-in, or one only JavaScript renders, through your own browser | **Agent Bridge**: MCP server + browser extension 1.6.0 (not yet in the stores; the store version is 1.5.1) | Turn on Agent Bridge in the popup and paste its key into the server ([setup](/page2ai-docs/mcp/#agent-bridge-extension-160-not-yet-in-the-stores)) |
 | Let an agent that drives a browser (Chrome DevTools MCP, Playwright MCP) get the extension's Markdown of the page that browser shows | **Agent script** from the GitHub release | `page2ai-agent.fn.js` or `page2ai-agent.js` ([steps](/page2ai-docs/install/#agent-script-browser-automation)) |
 | Convert HTML in your own code, or save the Markdown to a file | **Library** `@page2ai/core` | `npm i @page2ai/core` ([example](/page2ai-docs/install/#npm-library-node-or-browser-code)) |
 
