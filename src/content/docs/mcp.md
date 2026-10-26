@@ -94,7 +94,7 @@ Give `url`, `html`, or both. With both, the URL is not fetched: it names the pag
 
 **Read-only.** The tool declares `readOnlyHint: true` in its MCP manifest — it never writes, and it never modifies system state.
 
-## Agent Bridge (extension 1.6.0, not yet in the stores)
+## Agent Bridge (extension 1.6.0)
 
 The local server fetches without cookies and runs no page scripts, so a page behind a sign-in or one rendered only by JavaScript comes back as its login page or nearly empty. The Agent Bridge lets it ask your own browser instead: the Page2AI extension (1.6.0 or later) opens the page in a background tab, with your cookies and the page's scripts, and returns the extension's Markdown. The call's `include_images` and `include_frontmatter` are honoured on this path too.
 
