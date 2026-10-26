@@ -101,7 +101,7 @@ npx -y page2ai-mcp --version
 
 It prints the version and exits (`--version` needs 0.6.2 or later). It needs Node.js 20 or later.
 
-Without `--version` the server starts on stdio, prints `[page2ai-mcp] server <version> ready on stdio` to stderr and waits for an MCP client: that is normal, Ctrl+C to exit. The lines about Agent Bridge that follow it are for a feature of extension 1.6.0, which is not in the stores yet; you can ignore them. To see the server answer a request, run the [`initialize` example](/page2ai-docs/mcp/#verify-locally).
+Without `--version` the server starts on stdio, prints `[page2ai-mcp] server <version> ready on stdio` to stderr and waits for an MCP client: that is normal, Ctrl+C to exit. The lines about Agent Bridge that follow it are for a feature of extension 1.6.0, which is not in the stores yet; ignore them unless you are setting up the Agent Bridge below. To see the server answer a request, run the [`initialize` example](/page2ai-docs/mcp/#verify-locally).
 
 **Agent Bridge (extension 1.6.0, not yet in the stores).** To let the server read pages through your browser (behind a sign-in, or rendered by JavaScript): open the extension popup, turn on *Agent Bridge*, allow access to websites, and give the server the key the popup shows — full steps and the version table are on the [MCP server page](/page2ai-docs/mcp/#agent-bridge-extension-160-not-yet-in-the-stores). The store version (1.5.1) has no such switch; until 1.6.0 reaches the stores, pass the page's HTML as the tool's `html` argument instead.
 
