@@ -49,6 +49,7 @@ Every product listed above runs entirely on the user's own machine. The hosted e
 
 - Runs as a stdio process spawned by your MCP client (Claude Desktop, Cursor, Windsurf, Zed).
 - Exposes one tool, `page_to_markdown`. When your agent calls it, the server fetches the URL your agent provided, following its redirects, and returns the extracted Markdown to the agent; it requests nothing else. Up to `@page2ai/mcp` 0.2.8 (`@page2ai/core` 0.1.13) it first requested that URL with `.md` added, on the same site.
+- Listens on `ws://127.0.0.1:3025`, reachable from your own computer only, for the Page2AI extension's Agent Bridge (since `@page2ai/mcp` 0.5.0). Without the key the extension's popup shows, set as `PAGE2AI_BRIDGE_KEY` (since 0.6.0), no browser can connect. With the bridge on, a page your agent asks for opens in a background tab of your browser, with your cookies; its Markdown comes to the server over that local connection and goes on to your MCP client like any other result, and nowhere else.
 - Server-side safety rules:
   - **http and https only** — `file:`, `data:`, `javascript:` and every other scheme are rejected.
   - **SSRF guard** — blocks loopback, private IPv4 (`10/8`, `172.16/12`, `192.168/16`), link-local (`169.254/16` including cloud metadata endpoints), IPv6 loopback and private ranges. Applied before the request and on every redirect hop, after DNS resolution.

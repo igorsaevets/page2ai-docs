@@ -102,7 +102,7 @@ Setup: install the extension 1.6.0, open its popup, turn on **Agent Bridge**, al
 
 | Extension | MCP server | What you get |
 |---|---|---|
-| 1.5.1 (in the stores) | any | No bridge — the popup has no Agent Bridge switch. The server fetches public pages itself, or converts `html` you hand it. |
+| 1.5.1 (Firefox Add-ons; the Chrome Web Store serves 1.6.0 since 2026-10-26) | any | No bridge — the popup has no Agent Bridge switch. The server fetches public pages itself, or converts `html` you hand it. |
 | 1.6.0 or later | 0.6.0 or later | Bridge available (protocol `page2ai-bridge/2`, paired by key). |
 | 1.6.0 or later | older than 0.6.0 | No pairing: the key protocol arrived in 0.6.0, so the server fetches by itself, silently. (The result notes that name the reason arrived in 0.6.2, the extension version in them in 0.6.3 — neither is in this row's server.) |
 
