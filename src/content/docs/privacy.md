@@ -56,7 +56,7 @@ Every product listed above runs entirely on the user's own machine. The hosted e
   - **10 MB response cap.**
   - **Timeout** enforced by `AbortController`, default 15 s, hard cap 60 s.
   - **UTF-8 only** on response body.
-- Does not log requests, does not persist anything to disk. All state is per-invocation.
+- Does not log requests and writes nothing to disk. Up to `@page2ai/mcp` 0.6.3 all state is per-invocation. Since 0.7.0 the Markdown of a long page that comes back in parts stays in the server's memory, so its next parts come from the same text: until 10 minutes after its last part was read, until more than 8 pages or 16 million characters are kept (the oldest goes first), or until the server stops. A page that fits in one part is not kept.
 
 ## Third parties
 

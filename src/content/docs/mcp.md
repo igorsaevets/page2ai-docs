@@ -84,13 +84,17 @@ Fetch a URL, or take the HTML you already have, and convert it to Markdown.
   "html": "string (optional, up to 10,000,000 characters): the page's HTML, converted instead of fetching",
   "include_images": "boolean (default: true)",
   "include_frontmatter": "boolean (default: true)",
-  "timeout_ms": "number (default: 15000, range: 1000-60000)"
+  "timeout_ms": "number (default: 15000, range: 1000-60000)",
+  "max_length": "number (default: 30000, range: 100-1000000): characters per part; a longer page comes back in parts",
+  "start_index": "number (default: 0): character offset to read from: the next part, or one section"
 }
 ```
 
 Give `url`, `html`, or both. With both, the URL is not fetched: it names the page the HTML came from, relative links resolve against it, and the frontmatter adds `provenance: "HTML supplied by the caller; the source URL was not fetched"`. This is how to convert a page that a browser tool (Playwright, Chrome DevTools MCP) already loaded, including your own app on a private network or a page behind a sign-in. `html` needs `@page2ai/mcp` 0.5.2 or later; the hosted endpoint takes `url` only.
 
-**Output.** A text block with the Markdown: unless `include_frontmatter` is false it opens with YAML frontmatter (title, source URL, capture time, page metadata, extractor version), then the page. A second text block follows only when the server has a note about the result. A failure (a blocked address, a timeout, a page over 10 MB) comes back as a tool error that says why.
+**Output.** A text block with the Markdown: unless `include_frontmatter` is false it opens with YAML frontmatter (title, source URL, capture time, page metadata, extractor version), then the page. A second text block follows only when the server has a note about the result. A failure (a blocked address, a timeout, a page over 10 MB) comes back as a tool error that says why; since 0.7.0 its second line says what to do next. An HTTP 401 or 403 (on 2026-10-30, npm, Stack Overflow, Medium and OpenAI refused the server's requests) points to the page's HTML from a browser tool as `html`, or to the Agent Bridge, and says the same request will be refused again; 404 and 410 say to check the URL, 429 to wait, 5xx to try later, a timeout to raise `timeout_ms`. A page with no readable text and a fetch that landed on a sign-in page come back with a note giving the same steps.
+
+**Long pages (0.7.0 and later).** A page longer than `max_length` characters (30,000 by default, about 8,000 tokens) comes back in parts. A part ends between blocks, never inside a code block or the frontmatter and never right after a heading. The first part ends with a note naming the `start_index` of the next part and listing the page's sections as `start_index (length): heading`, so an agent can ask for one section by its `start_index` and its length as `max_length`. Later parts come from the text the first part was cut from, kept in the server's memory for 10 minutes after the last part was read: the site gets no new request, the Agent Bridge opens no second tab, and offsets do not move. A page that fits in one part comes back exactly as before. Python's built-in types page (285,604 characters on 2026-10-31) comes back in 10 parts, the first of 29,662 characters with 18 sections listed. The hosted endpoint returns whole pages: it takes `url` only.
 
 **Read-only.** The tool declares `readOnlyHint: true` in its MCP manifest — it never writes, and it never modifies system state.
 
