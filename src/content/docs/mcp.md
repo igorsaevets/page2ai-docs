@@ -102,13 +102,18 @@ Give `url`, `html`, or both. With both, the URL is not fetched: it names the pag
 
 The local server fetches without cookies and runs no page scripts, so a page behind a sign-in or one rendered only by JavaScript comes back as its login page or nearly empty. The Agent Bridge lets it ask your own browser instead: the Page2AI extension (1.6.0 or later) opens the page in a background tab, with your cookies and the page's scripts, and returns the extension's Markdown. The call's `include_images` and `include_frontmatter` are honoured on this path too.
 
-Setup: install the extension 1.6.0, open its popup, turn on **Agent Bridge**, allow access to websites, and paste the key it shows (*Copy key*) into this server's `PAGE2AI_BRIDGE_KEY` (Claude Desktop: the *Agent Bridge key* setting), then restart the MCP client. Both sides prove they know the key before any page opens; the key never crosses the local connection (`ws://127.0.0.1:3025`, your own machine only). The extension refuses sign-in providers' pages and non-public addresses, before opening and again on the page a tab lands on; a page it declines is fetched by the server as usual, with a note saying why.
+Setup: install the extension 1.6.0, open its popup, turn on **Agent Bridge**, allow access to websites, and paste the key it shows (*Copy key*) into this server's `PAGE2AI_BRIDGE_KEY` (Claude Desktop: the *Agent Bridge key* setting), then restart the MCP client. Both sides prove they know the key before any page opens; the key never crosses the local connection (WebSocket on `127.0.0.1`, your own machine only). The extension refuses sign-in providers' pages and non-public addresses, before opening and again on the page a tab lands on; a page it declines is fetched by the server as usual, with a note saying why.
+
+### Multiple MCP clients (0.8.0 / extension 1.7.0)
+
+When `PAGE2AI_BRIDGE_PORT` is not set, the server (0.8.0 or later) tries ports 3025 through 3032 and binds the first free one. A second server picks the next port automatically. The extension (1.7.0 or later) scans the full range and connects to every server it finds — so Claude Desktop on port 3025, Cursor on 3026, and a `claude -p` job on 3027 all share the same browser, each with its own bridge connection. Explicit `PAGE2AI_BRIDGE_PORT` still binds only the port you set.
 
 | Extension | MCP server | What you get |
 |---|---|---|
-| 1.5.1 (Firefox Add-ons; the Chrome Web Store serves 1.6.0 since 2026-10-26) | any | No bridge — the popup has no Agent Bridge switch. The server fetches public pages itself, or converts `html` you hand it. |
-| 1.6.0 or later | 0.6.0 or later | Bridge available (protocol `page2ai-bridge/2`, paired by key). |
-| 1.6.0 or later | older than 0.6.0 | No pairing: the key protocol arrived in 0.6.0, so the server fetches by itself, silently. (The result notes that name the reason arrived in 0.6.2, the extension version in them in 0.6.3 — neither is in this row's server.) |
+| 1.7.0 or later | 0.8.0 or later | **Multiple servers share the browser.** Each picks a free port in 3025–3032; the extension connects to all of them. |
+| 1.6.0 | 0.6.0 or later | Single bridge on port 3025 (1.6.0 connects to 3025 only). With 0.8.0, a second server auto-selects a different port that 1.6.0 cannot reach — upgrade the extension. |
+| 1.5.1 (Firefox Add-ons) | any | No bridge — the popup has no Agent Bridge switch. The server fetches public pages itself, or converts `html` you hand it. |
+| any | older than 0.6.0 | No bridge — the key protocol arrived in 0.6.0. |
 
 There is no bridge on the hosted endpoint: it can never reach your browser.
 
