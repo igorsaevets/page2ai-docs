@@ -117,6 +117,48 @@ When `PAGE2AI_BRIDGE_PORT` is not set, the server (0.8.0 or later) tries ports 3
 
 There is no bridge on the hosted endpoint: it can never reach your browser.
 
+## Proxy support (0.4.0)
+
+Since `@page2ai/core` 0.4.0 (`@page2ai/mcp` 0.8.1, 2026-11-02), the local server honours the standard HTTP proxy environment variables:
+
+| Variable | Used when |
+|---|---|
+| `HTTPS_PROXY` / `https_proxy` | the target URL is `https://` |
+| `HTTP_PROXY` / `http_proxy` | the target URL is `http://` |
+| `NO_PROXY` / `no_proxy` | lists hostnames or domains that bypass the proxy |
+
+Lowercase takes precedence over uppercase, matching the curl / wget / Node.js convention. When a proxy is set and `NO_PROXY` does not match the target, the request routes through an undici `ProxyAgent`. When `NO_PROXY` matches the target — or no proxy variable is set — the request goes direct with full DNS pinning, the same path as before 0.4.0.
+
+**Passing env vars to the server.** The server inherits environment variables from its parent process. In MCP clients that use the JSON config format, add an `env` object:
+
+```json
+{
+  "mcpServers": {
+    "page2ai": {
+      "command": "npx",
+      "args": ["-y", "page2ai-mcp"],
+      "env": {
+        "HTTPS_PROXY": "http://proxy.corp.example:8080",
+        "NO_PROXY": "localhost,127.0.0.1,.internal.example"
+      }
+    }
+  }
+}
+```
+
+Claude Code, Codex CLI and other terminal-based clients inherit the shell's environment, so `export HTTPS_PROXY=...` (or `$env:HTTPS_PROXY = ...` on Windows) before launching the client is enough.
+
+**`NO_PROXY` matching.** A comma-separated list of entries, each matched against the target hostname:
+
+- `example.com` — exact match, bypasses the proxy for that host.
+- `.example.com` (or `example.com`) — also matches any subdomain (`sub.example.com`).
+- `example.com:8080` — matches only when the target port is 8080.
+- `*` — bypasses the proxy for everything (all requests go direct).
+
+**SSRF guard interaction.** DNS pinning is impossible through a proxy: the proxy resolves the target hostname, not the server. The SSRF guard's string-level checks (private hostnames, `metadata.google.internal`) still block before the request is made, and the advisory DNS resolution still runs — a hostname that resolves to a private IP is blocked even through a proxy. The proxy URL itself is trusted infrastructure and is not checked by the SSRF guard. See [Safety](#safety) below.
+
+The hosted endpoint does not read proxy variables — it fetches from its own server.
+
 ## Safety
 
 The server enforces the following at runtime:
