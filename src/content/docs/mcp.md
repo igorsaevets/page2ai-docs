@@ -72,6 +72,34 @@ Restart the client. The `page2ai` server should show one tool: `page_to_markdown
 | Cline (VS Code) | Install via [`llms-install.md`](https://github.com/igorsaevets/page2ai-mcp/blob/main/llms-install.md) — Cline reads it and configures itself |
 | LobeHub | [Listing page](https://lobehub.com/mcp/igorsaevets-page2ai-mcp) — one-click enable |
 
+## CLI: `npx page2ai <url>`
+
+Convert any web page to Markdown from the terminal — no MCP client needed.
+
+```bash
+npx page2ai https://docs.python.org/3/library/stdtypes.html
+```
+
+The `page2ai` npm package depends only on `@page2ai/core` (no MCP overhead). Output goes to stdout with no frontmatter by default, so it pipes cleanly:
+
+```bash
+npx page2ai https://example.com > page.md
+npx page2ai https://example.com --max-length 5000
+npx page2ai --html local.html --base-url https://example.com
+curl -s https://example.com | npx page2ai -
+```
+
+| Option | Description |
+|---|---|
+| `--frontmatter` | Include a YAML frontmatter block (off by default) |
+| `--no-images` | Strip image references |
+| `--timeout <ms>` | Fetch timeout (default: 15000) |
+| `--max-length <chars>` | Truncate output |
+| `--html <file>` | Convert a local file instead of fetching |
+| `--base-url <url>` | Base URL for relative links (with `--html`) |
+
+The same SSRF guard protects the CLI: private ranges, loopback, and cloud metadata endpoints are blocked.
+
 ## Tool: `page_to_markdown`
 
 Fetch a URL, or take the HTML you already have, and convert it to Markdown.
