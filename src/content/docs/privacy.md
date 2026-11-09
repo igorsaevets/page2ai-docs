@@ -25,7 +25,7 @@ head:
 
 Page2AI does not collect, transmit, sell, share, or store any personal data. There is no telemetry, no analytics, no crash reporting, no A/B testing, and no third-party services embedded in any of the products.
 
-Every product listed above runs entirely on the user's own machine. The hosted endpoint behind the ChatGPT plugin (`page2ai-mcp-remote.vercel.app`) runs on a server instead and has its own policy: [hosted endpoint privacy policy](https://page2ai-mcp-remote.vercel.app/privacy.html).
+Every product listed above runs entirely on the user's own machine. The hosted endpoint (`page2ai.igorsaevets.com`, and the earlier address `page2ai-mcp-remote.vercel.app`, which the ChatGPT plugin still calls) runs on a server instead and has its own policy: [hosted endpoint privacy policy](https://page2ai.igorsaevets.com/privacy.html).
 
 ## What each surface does with your data
 
