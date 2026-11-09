@@ -31,12 +31,14 @@ head:
 For clients that accept a remote MCP server URL (Streamable HTTP):
 
 ```
-https://page2ai-mcp-remote.vercel.app/api/mcp
+https://page2ai.igorsaevets.com/api/mcp
 ```
 
-The same conversion as the local server, behind a narrower tool: `url` and `query` (no `html`, no pagination), public pages only, at most 20 s per page (its platform stops every request at 30 s), rate-limited per IP. The [Page2AI plugin in ChatGPT](/page2ai-docs/install/#chatgpt-plugin) calls this endpoint. Convenient when you cannot run Node.js on the host (mobile clients, browser-only IDEs, hosted playgrounds).
+The same conversion as the local server, behind a narrower tool: `url` and `query` (no `html`, no pagination), public pages only, at most 60 s per page, rate-limited per IP. Convenient when you cannot run Node.js on the host (mobile clients, browser-only IDEs, hosted playgrounds).
 
-**Privacy trade-off:** URLs sent to the hosted endpoint are fetched *from that server*, so they transit infrastructure operated by the author (on Vercel). Running locally via `npx` keeps everything on your machine — prefer it when you can.
+The earlier address, `https://page2ai-mcp-remote.vercel.app/api/mcp`, keeps answering with the same tool (at most 20 s per page there: its platform stops every request at 30 s). The [Page2AI plugin in ChatGPT](/page2ai-docs/install/#chatgpt-plugin) still calls it.
+
+**Privacy trade-off:** URLs sent to the hosted endpoint are fetched *from that server*, so they transit infrastructure operated by the author (a server in New York behind Cloudflare; the earlier address runs on Vercel). Running locally via `npx` keeps everything on your machine — prefer it when you can.
 
 ## Install (local)
 
