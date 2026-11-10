@@ -1,0 +1,113 @@
+name: Hosted endpoint monitor
+
+# Every hour, the hosted MCP endpoint these docs describe, and the earlier Vercel address that still serves the
+# ChatGPT plugin, must answer initialize, tools/list and one page_to_markdown call on https://example.com/.
+# A host that fails twice in a row (30 s apart) gets ONE open issue, which is the alert; the next run that sees the host
+# answer comments and closes it. The job itself stays green, so an outage does not send an e-mail every hour.
+# workflow_dispatch with simulate_down = a host name opens and labels a test issue without contacting that host,
+# so the alert path can be tested; a normal run closes it again.
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      simulate_down:
+        description: 'Test the alert path: page2ai.igorsaevets.com or page2ai-mcp-remote.vercel.app (empty = real check)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: hosted-endpoint-monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check both hosts and open or close the alert issues
+        uses: actions/github-script@v9
+        env:
+          SIMULATE_DOWN: ${{ github.event.inputs.simulate_down }}
+        with:
+          script: |
+            const HOSTS = ['page2ai.igorsaevets.com', 'page2ai-mcp-remote.vercel.app'];
+            const UA = 'Page2AI-monitor/1.0 (+https://github.com/igorsaevets/page2ai-docs)';
+            const simulate = (process.env.SIMULATE_DOWN || '').trim();
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+            async function rpc(url, method, params, pv) {
+              const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'user-agent': UA };
+              if (pv) headers['mcp-protocol-version'] = pv;
+              const res = await fetch(url, { method: 'POST', headers, signal: AbortSignal.timeout(90_000),
+                body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
+              const text = await res.text();
+              let msg = null;
+              if ((res.headers.get('content-type') || '').includes('text/event-stream')) {
+                const data = text.split('\n').filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim()).filter(Boolean);
+                msg = data.length ? JSON.parse(data[data.length - 1]) : null;
+              } else if (text.trim()) {
+                try { msg = JSON.parse(text); } catch { msg = null; }
+              }
+              return { status: res.status, msg, head: text.slice(0, 160) };
+            }
+
+            async function probe(host) {
+              const url = `https://${host}/api/mcp`;
+              const t0 = Date.now();
+              const init = await rpc(url, 'initialize', { protocolVersion: '2025-06-18', capabilities: {},
+                clientInfo: { name: 'page2ai-monitor', version: '1.0' } });
+              if (init.status !== 200 || !init.msg?.result) throw new Error(`initialize: HTTP ${init.status} ${init.head}`);
+              const pv = init.msg.result.protocolVersion;
+              const list = await rpc(url, 'tools/list', {}, pv);
+              if (!list.msg?.result?.tools?.some((t) => t.name === 'page_to_markdown')) throw new Error(`tools/list: HTTP ${list.status} ${list.head}`);
+              const call = await rpc(url, 'tools/call', { name: 'page_to_markdown', arguments: { url: 'https://example.com/' } }, pv);
+              const text = (call.msg?.result?.content || []).map((c) => c.text || '').join('');
+              if (call.msg?.result?.isError || !text.includes('Example Domain')) throw new Error(`tools/call: HTTP ${call.status} ${text.slice(0, 160) || call.head}`);
+              return Date.now() - t0;
+            }
+
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, state: 'open', per_page: 100 });
+            let down = 0;
+            for (const host of HOSTS) {
+              const title = `Hosted endpoint down: ${host}`;
+              const existing = open.find((i) => i.title === title && !i.pull_request);
+              let error = null;
+              let ms = 0;
+              if (simulate === host) {
+                error = 'simulated outage (workflow_dispatch simulate_down): a test of the alert path, not a real failure';
+              } else {
+                try { ms = await probe(host); } catch (e1) {
+                  await sleep(30_000);
+                  try { ms = await probe(host); } catch (e2) { error = `${e1.message} | retry: ${e2.message}`; }
+                }
+              }
+              const now = new Date().toISOString();
+              if (error) {
+                down += 1;
+                core.warning(`${host}: ${error}`);
+                if (!existing) {
+                  const who = simulate === host ? '' : '@igorsaevets ';
+                  await github.rest.issues.create({ ...context.repo, title,
+                    body: `${who}The hourly check of \`https://${host}/api/mcp\` failed twice, 30 s apart.\n\n` +
+                      `- First seen: ${now}\n- Error: ${error.slice(0, 600)}\n- Run: ${runUrl}\n\n` +
+                      'This issue closes itself when a later run gets an answer (initialize, tools/list and a page_to_markdown call on example.com).' });
+                } else {
+                  core.info(`${host}: still down, issue #${existing.number} stays open`);
+                }
+              } else {
+                core.info(`${host}: OK in ${ms} ms`);
+                if (existing) {
+                  await github.rest.issues.createComment({ ...context.repo, issue_number: existing.number,
+                    body: `Answering again at ${now} (initialize, tools/list and page_to_markdown in ${ms} ms). Run: ${runUrl}` });
+                  await github.rest.issues.update({ ...context.repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
+                }
+              }
+            }
+            await core.summary.addRaw(`${HOSTS.length - down} of ${HOSTS.length} hosts answered at ${new Date().toISOString()}`).write();
