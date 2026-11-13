@@ -90,6 +90,7 @@ export default defineConfig({
         { label: 'Install', slug: 'install' },
         { label: 'MCP server', slug: 'mcp' },
         { label: 'Comparison', slug: 'comparison' },
+        { label: 'Case study: one docs page', slug: 'case-study-docs-page' },
         {
           label: 'Guides',
           items: [
