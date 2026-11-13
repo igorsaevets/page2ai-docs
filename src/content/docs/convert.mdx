@@ -1,0 +1,47 @@
+---
+title: HTML to Markdown converter
+description: Free online HTML to Markdown converter. Upload a saved web page or paste its HTML and get clean Markdown for ChatGPT, Claude and other AI. Runs in your browser, nothing is uploaded, no sign-up.
+tableOfContents: false
+---
+
+import Converter from '../../components/Converter.astro';
+
+Upload a saved web page or paste its HTML, and get Markdown an AI model reads well: headings, lists, tables,
+code blocks and links, without menus, scripts and styling. Free, no account, and the file stays on your computer.
+
+<Converter />
+
+## How it works
+
+The converter runs [`@page2ai/core`](https://www.npmjs.com/package/@page2ai/core), the open-source engine of the
+[Page2AI MCP server](../mcp/), inside this browser tab. Your file is read by the browser, parsed by a parser that
+runs no script and loads no image, style or font from it, and turned into Markdown in a background thread of the
+page. Nothing is sent to a server, stored or logged: close the tab and it is gone.
+
+For the same HTML and page address it gives the same Markdown as the MCP server and the npm library, because it is
+the same function. The [Chrome extension](../install/) has its own engine for the page you are reading: it also expands
+collapsed sections and tabs, waits for content that scripts load, and reads pages behind your sign-in, so its
+Markdown for a live page can hold more than a saved file does.
+
+## Why a file and not a link
+
+A web page cannot read another site's HTML: the browser blocks it. So this page converts files you give it and
+does not fetch links. To convert a page by its link, use the Chrome extension on the open page, or let an AI agent
+call the MCP server, which fetches the page from your machine (`npx -y page2ai-mcp`).
+
+## Questions
+
+**Is my HTML uploaded anywhere?** No. The conversion runs in this tab. You can check it: open the browser's
+developer tools, go to Network, and convert a file; no request appears for it.
+
+**What does the frontmatter hold?** The page title, its address when one is known (typed under Options, or found
+in the file), the time of the conversion, the language, description and canonical link the page declares, and the
+engine name and version. Turn it off under Options.
+
+**Why is my Markdown empty or short?** Some pages build their text with scripts after they load, or show it only
+after a sign-in, and a saved copy of such a page holds little text. The extension reads the page in your own tab
+after its scripts ran.
+
+**Is there a size limit?** 10 MB of HTML, the same limit as the MCP server. Larger pages convert in the extension.
+
+**What does it cost?** Nothing. Page2AI is free and open source ([MIT](https://github.com/igorsaevets/page2ai-core)).

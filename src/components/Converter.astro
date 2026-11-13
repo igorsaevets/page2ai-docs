@@ -1,0 +1,316 @@
+---
+// Online HTML-to-Markdown converter (BL-62). The logic is src/scripts/converter.ts; the engine is
+// '@page2ai/core/html' in a Web Worker (src/scripts/convert.worker.ts). Nothing here sends the HTML anywhere.
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const cws =
+  'https://chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno?utm_source=page2ai-docs&utm_medium=converter&utm_campaign=online-converter';
+---
+
+<div class="p2a not-content" id="p2a-conv">
+  <div class="p2a-tabs" role="tablist" aria-label="Input" id="p2a-in-tabs">
+    <button type="button" role="tab" id="p2a-tab-upload" aria-selected="true" aria-controls="p2a-panel-upload">Upload a file</button>
+    <button type="button" role="tab" id="p2a-tab-paste" aria-selected="false" aria-controls="p2a-panel-paste" tabindex="-1">Paste HTML</button>
+    <button type="button" role="tab" id="p2a-tab-url" aria-selected="false" aria-controls="p2a-panel-url" tabindex="-1">From a link</button>
+  </div>
+
+  <div role="tabpanel" id="p2a-panel-upload" aria-labelledby="p2a-tab-upload" class="p2a-panel">
+    <label class="p2a-drop" id="p2a-drop">
+      <input type="file" id="p2a-file" accept=".html,.htm,.xhtml,.shtml,text/html,application/xhtml+xml" />
+      <span class="p2a-drop-main">Choose an .html file or drop it here</span>
+      <span class="p2a-hint">A page saved with Ctrl+S (Cmd+S on a Mac), up to 10 MB</span>
+    </label>
+  </div>
+
+  <div role="tabpanel" id="p2a-panel-paste" aria-labelledby="p2a-tab-paste" class="p2a-panel" hidden>
+    <textarea
+      id="p2a-html"
+      rows="9"
+      spellcheck="false"
+      autocomplete="off"
+      aria-label="HTML to convert"
+      placeholder="Paste the page's HTML here. Ctrl+U in Chrome shows the source of the page you are on."></textarea>
+    <div class="p2a-row">
+      <button type="button" id="p2a-convert-paste" class="p2a-btn p2a-primary">Convert to Markdown</button>
+      <span class="p2a-hint">or Ctrl+Enter</span>
+    </div>
+  </div>
+
+  <div role="tabpanel" id="p2a-panel-url" aria-labelledby="p2a-tab-url" class="p2a-panel" hidden>
+    <input type="url" id="p2a-url" class="p2a-input" placeholder="https://example.com/article" aria-label="Page link" />
+    <p>
+      This page converts files in your browser and does not fetch links: a browser does not let one site read
+      another site's HTML. To convert a page from its link:
+    </p>
+    <ol>
+      <li>
+        Open it, press Ctrl+S (Cmd+S on a Mac) and upload the saved .html file in the first tab. Set the link as the
+        page address, so relative links resolve.
+      </li>
+      <li>
+        Or add the free <a href={cws}>Chrome extension</a>: one click converts the page you are reading, including
+        pages behind a sign-in and pages that scripts build.
+      </li>
+      <li>AI agents: the <a href={`${base}mcp/`}>MCP server</a> fetches by URL, <code>npx -y page2ai-mcp</code>.</li>
+    </ol>
+    <div class="p2a-row">
+      <a id="p2a-url-open" class="p2a-btn" target="_blank" rel="noopener noreferrer nofollow">Open the page ↗</a>
+      <button type="button" id="p2a-url-base" class="p2a-btn">Use as page address</button>
+    </div>
+  </div>
+
+  <details class="p2a-opts" id="p2a-opts">
+    <summary>Options</summary>
+    <label class="p2a-field">
+      <span>Page address (resolves relative links; found in the file when it names one)</span>
+      <input type="url" id="p2a-base" class="p2a-input" placeholder="https://example.com/page" />
+    </label>
+    <label class="p2a-check"><input type="checkbox" id="p2a-fm" checked /> Frontmatter (title, source, date)</label>
+    <label class="p2a-check"><input type="checkbox" id="p2a-img" checked /> Images</label>
+  </details>
+
+  <p class="p2a-private">
+    🔒 Converted in this browser tab by <code>@page2ai/core</code>, the engine of the Page2AI MCP server. The file
+    is never uploaded: open DevTools → Network and convert a file, nothing is sent.
+  </p>
+
+  <p id="p2a-status" class="p2a-status" role="status" aria-live="polite"></p>
+
+  <section id="p2a-out" class="p2a-out" hidden aria-label="Result">
+    <div class="p2a-outbar">
+      <div class="p2a-tabs" role="tablist" aria-label="Result view" id="p2a-out-tabs">
+        <button type="button" role="tab" id="p2a-tab-md" aria-selected="true" aria-controls="p2a-panel-md">Markdown</button>
+        <button type="button" role="tab" id="p2a-tab-preview" aria-selected="false" aria-controls="p2a-panel-preview" tabindex="-1">Preview</button>
+      </div>
+      <div class="p2a-row">
+        <button type="button" id="p2a-copy" class="p2a-btn">Copy</button>
+        <button type="button" id="p2a-download" class="p2a-btn p2a-primary">Download .md</button>
+      </div>
+    </div>
+    <p id="p2a-stats" class="p2a-hint"></p>
+    <p id="p2a-base-note" class="p2a-hint"></p>
+    <div id="p2a-empty" class="p2a-note" hidden>
+      This file has no readable body text. Pages that build their text with scripts, or show it only after a sign-in,
+      often save this way. The <a href={cws}>Chrome extension</a> reads the page in your own tab, after its scripts ran
+      and with your sign-in.
+    </div>
+    <div role="tabpanel" id="p2a-panel-md" aria-labelledby="p2a-tab-md">
+      <textarea id="p2a-md" readonly spellcheck="false" aria-label="Markdown"></textarea>
+    </div>
+    <div role="tabpanel" id="p2a-panel-preview" aria-labelledby="p2a-tab-preview" hidden>
+      <label class="p2a-check">
+        <input type="checkbox" id="p2a-loadimg" /> Load images (their sites see your IP address)
+      </label>
+      <iframe
+        id="p2a-frame"
+        title="Rendered Markdown"
+        sandbox="allow-popups allow-popups-to-escape-sandbox"
+        referrerpolicy="no-referrer"
+        loading="lazy"></iframe>
+    </div>
+    <div class="p2a-cta">
+      <strong>Like the result?</strong> Get it from any page you read, in one click:
+      <a class="p2a-btn p2a-primary" href={cws}>Add to Chrome (free)</a>
+      <a class="p2a-btn" href={`${base}mcp/`}>MCP server for AI agents</a>
+      <a class="p2a-btn" href="https://www.npmjs.com/package/@page2ai/core">npm library</a>
+    </div>
+  </section>
+</div>
+
+<script>
+  import '../scripts/converter.ts';
+</script>
+
+<style>
+  .p2a {
+    --p2a-line: var(--sl-color-hairline-light, #d0d4da);
+    --p2a-soft: var(--sl-color-gray-6, #f3f4f6);
+    margin-block: 1.25rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .p2a code {
+    font-family: var(--sl-font-mono, ui-monospace, monospace);
+    font-size: 0.875em;
+  }
+  .p2a-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--p2a-line);
+  }
+  .p2a-tabs [role='tab'] {
+    font: inherit;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 0.4rem 0.4rem 0 0;
+    background: none;
+    color: var(--sl-color-gray-3, inherit);
+    cursor: pointer;
+  }
+  .p2a-tabs [role='tab'][aria-selected='true'] {
+    border-color: var(--p2a-line);
+    background: var(--sl-color-bg, #fff);
+    color: var(--sl-color-white, inherit);
+    font-weight: 600;
+    margin-bottom: -1px;
+  }
+  .p2a-panel p,
+  .p2a-panel ol {
+    margin: 0.6rem 0;
+  }
+  .p2a-drop {
+    position: relative;
+    display: grid;
+    place-items: center;
+    gap: 0.25rem;
+    padding: 1.75rem 1rem;
+    border: 2px dashed var(--p2a-line);
+    border-radius: 0.6rem;
+    text-align: center;
+    cursor: pointer;
+  }
+  .p2a-drop[data-over],
+  .p2a-drop:hover {
+    border-color: var(--sl-color-accent, #4f46e5);
+    background: var(--sl-color-accent-low, transparent);
+  }
+  .p2a-drop input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+  .p2a-drop:focus-within {
+    outline: 2px solid var(--sl-color-accent, #4f46e5);
+    outline-offset: 2px;
+  }
+  .p2a-drop-main {
+    font-weight: 600;
+  }
+  .p2a-hint {
+    color: var(--sl-color-gray-3, #6b7280);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+  .p2a textarea,
+  .p2a-input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--sl-font-mono, ui-monospace, monospace);
+    font-size: 0.85rem;
+    padding: 0.6rem;
+    border: 1px solid var(--p2a-line);
+    border-radius: 0.4rem;
+    background: var(--sl-color-bg, #fff);
+    color: var(--sl-color-white, inherit);
+  }
+  #p2a-md {
+    min-height: 22rem;
+    resize: vertical;
+  }
+  #p2a-frame {
+    width: 100%;
+    height: 32rem;
+    border: 1px solid var(--p2a-line);
+    border-radius: 0.4rem;
+    background: #fff;
+    margin-top: 0.5rem;
+  }
+  .p2a-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .p2a-btn {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--p2a-line);
+    border-radius: 0.4rem;
+    background: var(--sl-color-bg, #fff);
+    color: var(--sl-color-white, inherit);
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+  }
+  .p2a-btn[aria-disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .p2a-btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .p2a-primary {
+    background: var(--sl-color-accent, #4f46e5);
+    border-color: var(--sl-color-accent, #4f46e5);
+    color: var(--sl-color-black, #fff);
+    font-weight: 600;
+  }
+  .p2a-opts summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .p2a-field {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+  .p2a-check {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    margin-right: 1.25rem;
+    font-size: 0.9rem;
+  }
+  .p2a-private {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+  .p2a-status {
+    min-height: 1.4em;
+    margin: 0;
+    font-weight: 600;
+  }
+  .p2a-status[data-kind='error'] {
+    color: var(--sl-color-red, #b91c1c);
+  }
+  .p2a-out {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .p2a-out[hidden] {
+    display: none;
+  }
+  .p2a-outbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 0.5rem;
+  }
+  .p2a-outbar .p2a-tabs {
+    flex: 1 1 auto;
+  }
+  .p2a-outbar .p2a-row {
+    margin: 0 0 0.25rem;
+  }
+  .p2a-note,
+  .p2a-cta {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--p2a-line);
+    background: var(--p2a-soft);
+    font-size: 0.95rem;
+  }
+  .p2a-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+</style>

@@ -19,7 +19,7 @@ head:
       }
 ---
 
-**Effective date:** 2026-07-24. **Applies to:** Page2AI Chrome extension (Manifest V3), `@page2ai/core` npm package, `@page2ai/mcp` MCP server, and the unscoped `page2ai-mcp` wrapper. **Author:** Igor Saevets (support@igorsaevets.com, ORCID 0009-0006-8636-1377).
+**Effective date:** 2026-07-24. **Applies to:** Page2AI Chrome extension (Manifest V3), `@page2ai/core` npm package, `@page2ai/mcp` MCP server, the unscoped `page2ai-mcp` wrapper, and since 2026-11-13 the online converter on this site. **Author:** Igor Saevets (support@igorsaevets.com, ORCID 0009-0006-8636-1377).
 
 ## Summary
 
@@ -38,6 +38,17 @@ Every product listed above runs entirely on the user's own machine. The hosted e
 - **Makes no network request of its own since version 1.5.0** (2026-10-17). It reads only the page in your tab, no longer asks the site for an `llms.txt` index or a Markdown copy of the page, which can be older than the page, and copies parts of the page into a separate document in which the browser loads nothing. To capture content shown on demand it scrolls the page and opens tabs and collapsed sections, as you would; the page may then load more of its own content, as when you do it yourself. Since 1.6.0 there is one opt-in exception: while the Agent Bridge switch is on, the extension holds a connection to a Page2AI MCP server on your own machine and opens background tabs for it; those pages load from their own sites, and their Markdown goes to that local process, never to the author.
 - **Up to version 1.4.0 it asked the site you were reading for a Markdown copy of the page** each time you invoked it: `/llms.txt`, `/docs/llms.txt` and `/llms-full.txt` in every profile, with your cookies for that site, and no setting turned these off. With the Docs or Research profile (Auto-detect picked Docs on documentation pages) it also requested the page's address with `.md` and `/index.md` added, whether or not such a file existed, and a `.md` address for the page named by the page or by its `llms.txt`, on that site or on one of ten documentation hosts listed in [PRIVACY.md](https://github.com/igorsaevets/page2ai-extension/blob/main/PRIVACY.md). Requests to one of those hosts carried no cookies but, like any request a page makes, showed it your IP address and, by default, the site you were on. When it copied part of the page to read its text, the browser could also load images, video or audio of that part that the page had not loaded yet.
 - **Does not** send page contents or any other data to the author or to any other service. Up to 1.4.0 the only servers it contacted were the ones above.
+
+### Online converter on this site
+
+- The [HTML to Markdown converter](../convert/) runs `@page2ai/core` in your browser tab. The HTML you paste or the
+  file you choose is read by the browser and converted in a background thread of the page; it is never sent to the
+  author or anyone else, never stored, and gone when you close the tab.
+- The page loads its own scripts from this site and nothing else. The preview shows the Markdown in a sandboxed frame
+  that runs no script and loads no image until you tick «Load images»; then the browser loads those images from
+  their own sites, which see your IP address, as when you open the page itself.
+- This site is hosted on GitHub Pages, which, like any web host, receives your IP address and browser details when
+  you load a page; see GitHub's privacy statement. There are no cookies, analytics or trackers on this site.
 
 ### `@page2ai/core` npm library
 
