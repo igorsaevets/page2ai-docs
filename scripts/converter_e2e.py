@@ -104,6 +104,20 @@ with sync_playwright() as p:
     page.goto(PAGE, wait_until="networkidle")
     page.wait_for_timeout(3000)  # the idle warm-up loads the worker and the Markdown renderer
     check("page loaded nothing from another origin", not foreign, ", ".join(foreign[:3]))
+    # Control: the conversion runs in a dedicated worker, so a request made INSIDE a worker must reach the route
+    # and the request log, or every "no request" check below is blind to the place the engine runs.
+    n0 = len(seen)
+    page.evaluate(
+        """() => new Promise((done) => {
+          const src = "fetch('https://evil.example.net/worker-probe').catch(() => 0).finally(() => postMessage(1));";
+          const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+          w.onmessage = () => { w.terminate(); done(); };
+          setTimeout(done, 5000);
+        })"""
+    )
+    check("control: a fetch made inside a worker is caught by the route and the log",
+          any("worker-probe" in u for u in foreign) and any("worker-probe" in u for u in seen[n0:]), ", ".join(foreign[:3]))
+    foreign.clear()
     loaded = page.evaluate("performance.getEntriesByType('resource').map(e => e.name)")
     check("the engine worker was preloaded", any("convert.worker" in u for u in loaded))
     page.click("#p2a-opts summary")
