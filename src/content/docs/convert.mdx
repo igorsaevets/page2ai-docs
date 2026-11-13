@@ -1,7 +1,27 @@
 ---
-title: HTML to Markdown converter
-description: Free online HTML to Markdown converter. Upload a saved web page or paste its HTML and get clean Markdown for ChatGPT, Claude and other AI. Runs in your browser, nothing is uploaded, no sign-up.
+title: Online HTML to Markdown converter
+description: Free online HTML to Markdown converter. Upload a saved web page or paste HTML and get clean Markdown for ChatGPT, Claude and other AI. Runs in your browser.
 tableOfContents: false
+head:
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Page2AI online HTML to Markdown converter",
+        "url": "https://igorsaevets.github.io/page2ai-docs/convert/",
+        "description": "Converts a saved web page or pasted HTML to Markdown for AI models, inside the browser tab: the file is not uploaded.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any (runs in a web browser)",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": "Upload an .html file or paste HTML; Markdown and rendered preview; copy or download .md; nothing uploaded",
+        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" }
+      }
 ---
 
 import Converter from '../../components/Converter.astro';
@@ -16,12 +36,14 @@ code blocks and links, without menus, scripts and styling. Free, no account, and
 The converter runs [`@page2ai/core`](https://www.npmjs.com/package/@page2ai/core), the open-source engine of the
 [Page2AI MCP server](../mcp/), inside this browser tab. Your file is read by the browser, parsed by a parser that
 runs no script and loads no image, style or font from it, and turned into Markdown in a background thread of the
-page. Nothing is sent to a server, stored or logged: close the tab and it is gone.
+page. No request carries your file or its text, and nothing is stored or logged: close the tab and it is gone,
+unless you copied or downloaded the Markdown.
 
 For the same HTML and page address it gives the same Markdown as the MCP server and the npm library, because it is
-the same function. The [Chrome extension](../install/) has its own engine for the page you are reading: it also expands
-collapsed sections and tabs, waits for content that scripts load, and reads pages behind your sign-in, so its
-Markdown for a live page can hold more than a saved file does.
+the same function; only the conversion time in the frontmatter differs. Without a page address it leaves out the
+`source: "about:blank"` line the library writes then. The [Chrome extension](../install/) has its own engine for the
+page you are reading: it also expands collapsed sections and tabs, waits for content that scripts load, and reads
+pages behind your sign-in, so its Markdown for a live page can hold more than a saved file does.
 
 ## Why a file and not a link
 
@@ -31,17 +53,30 @@ call the MCP server, which fetches the page from your machine (`npx -y page2ai-m
 
 ## Questions
 
-**Is my HTML uploaded anywhere?** No. The conversion runs in this tab. You can check it: open the browser's
-developer tools, go to Network, and convert a file; no request appears for it.
+### Is my HTML uploaded anywhere?
 
-**What does the frontmatter hold?** The page title, its address when one is known (typed under Options, or found
-in the file), the time of the conversion, the language, description and canonical link the page declares, and the
-engine name and version. Turn it off under Options.
+No. The conversion runs in this tab. You can check it: open the browser's developer tools, go to Network, wait
+until this page has loaded (it fetches the converter's own scripts from this site once), then convert a file: no
+request appears. The one thing that makes requests is ticking «Load images» in the preview: the browser then loads
+those images from the sites that host them.
 
-**Why is my Markdown empty or short?** Some pages build their text with scripts after they load, or show it only
-after a sign-in, and a saved copy of such a page holds little text. The extension reads the page in your own tab
-after its scripts ran.
+### What does the frontmatter hold?
 
-**Is there a size limit?** 10 MB of HTML, the same limit as the MCP server. Larger pages convert in the extension.
+The page title, its address when one is known (typed under Options, or found in the file), the time of the
+conversion, the language, description and canonical link the page declares, and the engine name and version. Turn
+it off under Options.
 
-**What does it cost?** Nothing. Page2AI is free and open source ([MIT](https://github.com/igorsaevets/page2ai-core)).
+### Why is my Markdown empty or short?
+
+Some pages build their text with scripts after they load, or show it only after a sign-in, and a saved copy of such
+a page holds little text. The extension reads the page in your own tab after its scripts ran.
+
+### Is there a size limit?
+
+10 MB of HTML on a computer, the same limit as the MCP server, and 4 MB on a phone or tablet. Converting takes
+memory, about 20 to 60 times the file's size in our measurements, and a phone gives a tab less of it. Larger pages
+convert in the extension.
+
+### What does it cost?
+
+Nothing. Page2AI is free and open source ([MIT](https://github.com/igorsaevets/page2ai-core)).

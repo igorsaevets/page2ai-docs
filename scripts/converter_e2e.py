@@ -53,8 +53,43 @@ HOSTILE.write_text(
 <iframe src="https://evil.example.net/frame"></iframe><object data="https://evil.example.net/obj"></object>
 <video src="https://evil.example.net/v.mp4" autoplay></video><svg><script>window.top.__pwned=5</script></svg>
 <p><img src="https://img.example.net/photo.png" alt="photo"></p>
+<p>Autolink text &lt;javascript:window.top.__pwned=6&gt; and &lt;data:text/html,x&gt; here.</p>
+<p>Markdown in text: [click me](javascript:window.top.__pwned=7) and ![pic](javascript:x)</p>
+<p><a href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%2F%3E">svg data link</a>
+<a href="blob:https://evil.example.net/1">blob link</a> <a href="file:///C:/x">file link</a></p>
 </main></body></html>""",
     encoding="utf-8",
+)
+SINGLEFILE = tmp / "singlefile.html"
+SINGLEFILE.write_text(
+    "<!DOCTYPE html> <html><!--\n Page saved with SingleFile \n url: https://example.org/sf/page.html \n"
+    " saved date: Thu Nov 13 2026 \n--><head><title>SF</title></head><body><main><h1>SingleFile page</h1>"
+    '<p>See <a href="next.html">the next page</a>.</p></main></body></html>',
+    encoding="utf-8",
+)
+FALSEURL = tmp / "falseurl.html"
+FALSEURL.write_text(
+    "<html><head><!-- template note: url: https://wrong.example/ --><title>F</title></head><body><main><h1>F</h1>"
+    '<p>See <a href="next.html">the next page</a>.</p></main></body></html>',
+    encoding="utf-8",
+)
+BODY_RE = re.compile(r"<body[^>]*>([\s\S]*)</body>", re.I)
+LONG = tmp / "long.html"  # ~6 MB of real page bodies: a conversion that lasts long enough to race a second one
+_bodies = [f"<section>{m.group(1)}</section>" for f in (files or [SAVED])
+           if (m := BODY_RE.search(f.read_text(encoding="utf-8", errors="replace")))]
+_parts, _size, _i = [], 0, 0
+while _bodies and _size < 6 * 1024 * 1024 and _i < 10_000:
+    _b = _bodies[_i % len(_bodies)]
+    _i += 1
+    if _size + len(_b.encode("utf-8")) <= 8 * 1024 * 1024:
+        _parts.append(_b)
+        _size += len(_b.encode("utf-8"))
+LONG.write_text("<html><head><title>Long page</title></head><body>" + "".join(_parts) + "</body></html>", encoding="utf-8")
+FIVE_MB = tmp / "five.html"
+FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
+FAKE_CRASH_WORKER = (
+    "self.postMessage({ ready: true });\n"
+    "self.addEventListener('message', () => { setTimeout(() => { throw new Error('simulated crash'); }); });\n"
 )
 CP1251 = tmp / "cp1251.html"
 CP1251.write_bytes(
@@ -87,11 +122,17 @@ with sync_playwright() as p:
     ctx = browser.new_context(locale="en-US", accept_downloads=True)
     foreign: list[str] = []
     seen: list[str] = []
+    clicked: list[dict] = []
+    OK_LINK = "https://example.org/ok"
 
     def route(r):
         u = r.request.url
         if u.startswith(ORIGIN) or u.startswith(("data:", "blob:")):
             r.continue_()
+        elif u == OK_LINK and r.request.is_navigation_request():
+            # The preview's link, clicked: served here, with a script that only runs if the new tab is NOT sandboxed.
+            clicked.append({"referer": r.request.headers.get("referer")})
+            r.fulfill(status=200, content_type="text/html", body="<title>t</title><script>document.title='scripted'</script>")
         else:
             foreign.append(u)
             r.abort()
@@ -120,6 +161,7 @@ with sync_playwright() as p:
     foreign.clear()
     loaded = page.evaluate("performance.getEntriesByType('resource').map(e => e.name)")
     check("the engine worker was preloaded", any("convert.worker" in u for u in loaded))
+    check("the engine worker started and said ready", page.get_attribute("#p2a-conv", "data-engine-ready") == "1")
     page.click("#p2a-opts summary")
 
     def convert_file(path: pathlib.Path, base: str | None = BASE) -> tuple[str, str]:
@@ -143,9 +185,7 @@ with sync_playwright() as p:
             diffs.append(f.name)
     check(f"parity with Node on {len(files)} saved pages", files and same == len(files), f"{same}/{len(files)} identical; differ: {diffs[:5]}")
     check("converting sent no request at all", len(seen) == n_before, f"{len(seen) - n_before} new: {seen[n_before:n_before + 3]}")
-    loaded = page.evaluate("performance.getEntriesByType('resource').map(e => e.name)")
-    fallback = [u for u in loaded if re.search(r"/_astro/convert\.(?!worker)[\w-]+\.js$", u)]
-    check("the main-thread fallback chunk never loaded (the worker did the work)", not fallback, ", ".join(fallback))
+    check("the worker did the work (the page reports data-engine=worker)", page.get_attribute("#p2a-conv", "data-engine") == "worker")
 
     # Paste
     page.click("#p2a-tab-paste")
@@ -164,16 +204,46 @@ with sync_playwright() as p:
     check("hostile file converted", status.startswith("Converted"), status)
     check("hostile file: no request left the page", not foreign, ", ".join(foreign[:4]))
     check("hostile file: no script ran, no dialog", page.evaluate("window.__pwned === undefined") and not dialogs, f"dialogs={dialogs}")
-    check("hostile file: no javascript: link in the Markdown", "javascript:" not in md.lower())
+    check("hostile file: core dropped the <a href=\"javascript:\"> link", "__pwned=3" not in md)
+    check("hostile file: page text that looks like links stays in the Markdown (core keeps text)", "__pwned=6" in md and "__pwned=7" in md)
     page.click("#p2a-tab-preview")
     page.wait_for_function("document.querySelector('#p2a-frame').srcdoc.length > 0", timeout=30_000)
     page.wait_for_timeout(800)
     frame_el = page.query_selector("#p2a-frame")
     check("preview frame is sandboxed without scripts or same-origin", frame_el.get_attribute("sandbox") == "allow-popups allow-popups-to-escape-sandbox")
+    srcdoc = frame_el.get_attribute("srcdoc") or ""
+    csp = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"', srcdoc)
+    csp_v = csp.group(1) if csp else ""
+    check("preview CSP: default-src 'none', base-uri 'none', form-action 'none', no remote images while unticked",
+          all(x in csp_v for x in ("default-src 'none'", "base-uri 'none'", "form-action 'none'", "img-src data:;")) and "https:" not in csp_v, csp_v)
+    check("preview sends no Referer (meta referrer no-referrer)", '<meta name="referrer" content="no-referrer">' in srcdoc)
     frame = frame_el.content_frame()
-    inner = frame.evaluate("({scripts: document.querySelectorAll('script').length, handlers: document.querySelectorAll('[onerror],[onload],[onclick]').length, imgs: document.images.length})")
-    check("preview holds no script element and no event handler", inner["scripts"] == 0 and inner["handlers"] == 0, json.dumps(inner))
+    inner = frame.evaluate("""() => ({
+      scripts: document.querySelectorAll('script').length,
+      handlers: document.querySelectorAll('[onerror],[onload],[onclick]').length,
+      headings: [...document.querySelectorAll('h1,h2')].map(h => h.textContent),
+      badLinks: [...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href')).filter(h => !/^(https?:|mailto:)/i.test(h)),
+      badImgs: [...document.images].map(i => i.getAttribute('src')).filter(s => !/^(https?:|data:image\\/)/i.test(s)),
+      text: document.body.textContent,
+    })""")
+    check("preview holds no script element and no event handler", inner["scripts"] == 0 and inner["handlers"] == 0,
+          json.dumps({k: inner[k] for k in ("scripts", "handlers")}))
+    check("preview shows the converted page (its <h1>Hostile page</h1>)", "Hostile page" in inner["headings"], json.dumps(inner["headings"][:3]))
+    check("preview: only http(s)/mailto links (text like <javascript:…> or [x](javascript:…) is shown, not linked)",
+          not inner["badLinks"] and "javascript:window.top.__pwned=6" in inner["text"], json.dumps(inner["badLinks"][:4]))
+    check("preview: no image with a javascript: or other non-http source", not inner["badImgs"], json.dumps(inner["badImgs"][:3]))
+    check("preview: raw HTML in the Markdown is escaped to text (the html renderer override)",
+          '<img src=x onerror="window.top.__pwned=4">' in inner["text"], "")
     check("preview with images off fetched nothing", not foreign and page.evaluate("window.__pwned === undefined"), ", ".join(foreign[:4]))
+    # A link clicked in the preview opens a normal, unsandboxed tab (allow-popups-to-escape-sandbox + <base target>)
+    # and tells that site nothing about where the visitor came from.
+    with ctx.expect_page(timeout=15_000) as pop_info:
+        frame.click(f'a[href="{OK_LINK}"]')
+    pop = pop_info.value
+    pop.wait_for_load_state()
+    check("a preview link opens in a new, unsandboxed tab without a Referer",
+          pop.title() == "scripted" and clicked and not clicked[0]["referer"], f"title={pop.title()!r} {clicked}")
+    pop.close()
     page.check("#p2a-loadimg")
     page.wait_for_timeout(1500)
     check("control: images on does fetch the image (so 'off' was a real block)", any("img.example.net" in u for u in foreign), ", ".join(foreign[:4]))
@@ -187,12 +257,37 @@ with sync_playwright() as p:
     status, md = convert_file(SAVED, None)
     note = page.text_content("#p2a-base-note") or ""
     check("page address taken from Chrome's 'saved from url' comment", "https://example.org/guide/next.html" in md and "found in the file" in note, note)
+    status, md = convert_file(SINGLEFILE, None)
+    note = page.text_content("#p2a-base-note") or ""
+    check("page address taken from SingleFile's header comment", "https://example.org/sf/next.html" in md and "found in the file" in note, note)
+    status, md = convert_file(FALSEURL, None)
+    note = page.text_content("#p2a-base-note") or ""
+    check("a comment that is not SingleFile's header is not taken as the page address",
+          "wrong.example" not in md and note.startswith("No page address"), note)
     status, md = convert_file(EMPTY)
     check("empty body shows the extension note", page.is_visible("#p2a-empty"), status)
     page.evaluate("document.querySelector('#p2a-status').textContent = ''")
     page.set_input_files("#p2a-file", str(BIG))
     page.wait_for_function("document.querySelector('#p2a-status').dataset.kind === 'error'", timeout=30_000)
     check("an 11 MB file is refused before conversion", "limit is 10 MB" in (page.text_content("#p2a-status") or ""))
+    check("a computer gets the 10 MB limit (the hint says so)",
+          page.evaluate("document.querySelector('#p2a-limit')?.textContent || ''") == "10 MB")
+
+    # One conversion at a time: Ctrl+Enter in the paste box while a long file converts does not start a second job.
+    page.fill("#p2a-base", BASE)
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    page.set_input_files("#p2a-file", str(LONG))
+    page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converting')", timeout=30_000)
+    during = page.evaluate("""() => {
+      const t = document.querySelector('#p2a-html');
+      t.value = '<html><head><title>Second</title></head><body><p>second</p></body></html>';
+      t.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+      return document.querySelector('#p2a-status').textContent;
+    }""")
+    page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=120_000)
+    final = page.text_content("#p2a-status") or ""
+    check("a second conversion while one runs is not started, and the first one's result is shown",
+          during.startswith("Still converting") and "Long page" in final and "Second" not in final, f"during={during[:50]!r} final={final[:50]!r}")
 
     # Download
     convert_file(SAVED, None)
@@ -214,6 +309,46 @@ with sync_playwright() as p:
     check("'Use as page address' fills the address and returns to upload",
           page.input_value("#p2a-base") == "https://example.org/article" and page.get_attribute("#p2a-tab-upload", "aria-selected") == "true")
     check("no request left the page during the checks after the hostile file", not foreign, ", ".join(foreign[:4]))
+
+    def fresh_page(worker_route=None, init_script: str | None = None):
+        c = browser.new_context(locale="en-US")
+        c.route("**/*", lambda r: r.continue_() if r.request.url.startswith(ORIGIN) else r.abort())
+        if worker_route:
+            c.route("**/convert.worker*.js", worker_route)
+        if init_script:
+            c.add_init_script(init_script)
+        pg = c.new_page()
+        pg.goto(PAGE, wait_until="networkidle")
+        pg.wait_for_timeout(3000)
+        return c, pg
+
+    def convert_on(pg, path: pathlib.Path) -> str:
+        pg.evaluate("document.querySelector('#p2a-status').textContent = ''")
+        pg.set_input_files("#p2a-file", str(path))
+        pg.wait_for_function(
+            "(() => { const s = document.querySelector('#p2a-status'); return s.textContent.startsWith('Converted') || s.dataset.kind === 'error'; })()",
+            timeout=60_000)
+        return pg.text_content("#p2a-status") or ""
+
+    # A worker that dies while converting (after it said ready): the file is NOT replayed on the page's own thread.
+    c2, pg2 = fresh_page(lambda r: r.fulfill(status=200, content_type="text/javascript", body=FAKE_CRASH_WORKER))
+    st = convert_on(pg2, SAVED)
+    check("a worker crash on a file is reported and not retried on the page thread",
+          "stopped on this file" in st and pg2.get_attribute("#p2a-conv", "data-engine") == "worker"
+          and not pg2.get_attribute("#p2a-conv", "aria-busy"), st[:80])
+    c2.close()
+    # A browser that cannot start the worker (here: the worker file is missing) converts on the page thread.
+    c3, pg3 = fresh_page(lambda r: r.fulfill(status=404, body="not found"))
+    st = convert_on(pg3, SAVED)
+    check("no worker: the same function converts on the page thread",
+          st.startswith("Converted") and pg3.get_attribute("#p2a-conv", "data-engine") == "main", st[:80])
+    c3.close()
+    # A device that reports 2 GB of RAM or less (or a phone / tablet) gets a 4 MB limit.
+    c4, pg4 = fresh_page(init_script="Object.defineProperty(Navigator.prototype, 'deviceMemory', { get: () => 1, configurable: true });")
+    hint = pg4.evaluate("document.querySelector('#p2a-limit')?.textContent || ''")
+    st = convert_on(pg4, FIVE_MB)
+    check("a small device gets the 4 MB limit and refuses a 5 MB file", hint == "4 MB" and "limit is 4 MB" in st, f"hint={hint!r} {st[:60]!r}")
+    c4.close()
     browser.close()
 
 passed = sum(ok for _, ok in results)

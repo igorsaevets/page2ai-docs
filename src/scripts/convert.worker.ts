@@ -10,6 +10,10 @@ interface Job {
   opts: HtmlToMarkdownOptions;
 }
 
+// The page treats an error before this message as «this browser cannot run the worker» (it converts on its own
+// thread then) and an error after it as a crash on one file (not retried).
+self.postMessage({ ready: true });
+
 self.addEventListener('message', (event: MessageEvent<Job>) => {
   const { id, html, opts } = event.data;
   const t0 = performance.now();

@@ -1,14 +1,26 @@
 // Online converter (BL-62): paste or upload HTML, get Markdown. Everything happens in this tab: the file
 // is read with the File API, converted in a Web Worker by '@page2ai/core/html' (the MCP server's own
 // htmlToMarkdown), and shown as text, or rendered in a sandboxed frame that runs no script and loads no
-// image unless asked. The conversion sends no request anywhere.
+// image unless asked. No request carries the file or its text.
 import type { ConversionResult, HtmlToMarkdownOptions } from '@page2ai/core/html';
 
-const MAX_BYTES = 10 * 1024 * 1024; // the MCP server's response cap
+// Converting takes memory: in Chrome 18-36 MB per MB of HTML for real saved pages and ~58 MB for a dense synthetic
+// one (T239, measured on the live page), and an out-of-memory in the worker closes the whole tab, not just the
+// worker. A computer gets the MCP server's 10 MB; a touch-only device (phone, tablet) or one that reports 2 GB of
+// RAM or less gets 4 MB, which still takes every page of our 38-page corpus (the largest saved page is 3 MB).
+const MB = 1024 * 1024;
+const smallDevice = (): boolean => {
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  return (typeof mem === 'number' && mem <= 2) || !matchMedia('(any-pointer: fine)').matches;
+};
+const MAX_BYTES = (smallDevice() ? 4 : 10) * MB;
+const LIMIT_TEXT = `${MAX_BYTES / MB} MB`;
+const MAIN_THREAD_MAX_BYTES = 2 * MB; // this thread cannot be stopped: a long run would freeze the tab
 const TIMEOUT_MS = 60_000;
 const NO_BODY = '<!-- AI: page has no extractable body content -->';
 
 type Outcome = { ok: true; result: ConversionResult; ms: number } | { ok: false; error: string };
+type Engine = 'worker' | 'main';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string): T => {
   const el = document.getElementById(id);
@@ -17,19 +29,38 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string): T => {
 };
 
 // ---- engine: a module worker, or this thread if the browser cannot start one ----------------------
+// The worker posts {ready} once its module has loaded. An error before that means this browser cannot run it,
+// so the same function runs on this thread (small files only). An error after it means the worker died on a
+// file: that file is NOT replayed on this thread, where it would freeze or crash the tab; the next file gets a
+// fresh worker. A timeout ends the worker and every job it held.
 let worker: Worker | null = null;
+let workerReady = false;
 let mainThread = typeof Worker === 'undefined';
 let seq = 0;
 const pending = new Map<number, (o: Outcome) => void>();
 
 const failAll = (error: string): void => {
-  for (const done of pending.values()) done({ ok: false, error });
+  const waiting = [...pending.values()];
   pending.clear();
+  for (const done of waiting) done({ ok: false, error });
+};
+
+const stopWorker = (error: string): void => {
+  worker?.terminate();
+  worker = null;
+  workerReady = false;
+  failAll(error);
 };
 
 const startWorker = (): Worker => {
   const w = new Worker(new URL('./convert.worker.ts', import.meta.url), { type: 'module' });
-  w.addEventListener('message', (e: MessageEvent<{ id: number } & Outcome>) => {
+  w.addEventListener('message', (e: MessageEvent<({ id: number } & Outcome) | { ready: true }>) => {
+    if (w !== worker) return;
+    if ('ready' in e.data) {
+      workerReady = true;
+      document.getElementById('p2a-conv')?.setAttribute('data-engine-ready', '1');
+      return;
+    }
     const done = pending.get(e.data.id);
     if (done) {
       pending.delete(e.data.id);
@@ -37,17 +68,18 @@ const startWorker = (): Worker => {
     }
   });
   w.addEventListener('error', () => {
-    w.terminate();
-    if (worker === w) worker = null;
-    failAll('worker-failed');
+    if (w !== worker) return;
+    const started = workerReady;
+    if (!started) mainThread = true; // it never started here: the same function runs on this thread
+    stopWorker(started ? 'worker-crashed' : 'worker-failed');
   });
   return w;
 };
 
 const convertHere = async (html: string, opts: HtmlToMarkdownOptions): Promise<Outcome> => {
-  const { htmlToMarkdown } = await import('@page2ai/core/html');
-  const t0 = performance.now();
   try {
+    const { htmlToMarkdown } = await import('@page2ai/core/html');
+    const t0 = performance.now();
     return { ok: true, result: htmlToMarkdown(html, opts), ms: performance.now() - t0 };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
@@ -59,16 +91,13 @@ const convertInWorker = (html: string, opts: HtmlToMarkdownOptions): Promise<Out
     try {
       worker ??= startWorker();
     } catch {
+      mainThread = true;
       resolve({ ok: false, error: 'worker-failed' });
       return;
     }
     const id = ++seq;
     const timer = setTimeout(() => {
-      if (!pending.has(id)) return;
-      pending.delete(id);
-      worker?.terminate();
-      worker = null;
-      resolve({ ok: false, error: 'timeout' });
+      if (pending.has(id)) stopWorker('timeout');
     }, TIMEOUT_MS);
     pending.set(id, (o) => {
       clearTimeout(timer);
@@ -77,13 +106,13 @@ const convertInWorker = (html: string, opts: HtmlToMarkdownOptions): Promise<Out
     worker.postMessage({ id, html, opts });
   });
 
-const convert = async (html: string, opts: HtmlToMarkdownOptions): Promise<Outcome> => {
+const convert = async (html: string, opts: HtmlToMarkdownOptions, inBytes: number): Promise<{ out: Outcome; engine: Engine }> => {
   if (!mainThread) {
     const out = await convertInWorker(html, opts);
-    if (out.ok || out.error !== 'worker-failed') return out;
-    mainThread = true; // the worker never started: same function, this thread
+    if (out.ok || out.error !== 'worker-failed') return { out, engine: 'worker' };
   }
-  return convertHere(html, opts);
+  if (inBytes > MAIN_THREAD_MAX_BYTES) return { out: { ok: false, error: 'main-too-big' }, engine: 'main' };
+  return { out: await convertHere(html, opts), engine: 'main' };
 };
 
 // ---- reading a file: BOM, then <meta charset>, then UTF-8 ------------------------------------------
@@ -110,7 +139,8 @@ export const decodeHtml = (buf: ArrayBuffer): { text: string; charset: string } 
 // a canonical link or og:url. Relative links are resolved against it.
 const SOURCE_PATTERNS = [
   /<!--\s*saved from url=\(\d+\)(https?:\/\/[^\s>]+?)\s*-->/i,
-  /<!--[\s\S]{0,400}?\burl:\s*(https?:\/\/[^\s>]+)/i,
+  // SingleFile's header comment only: any other comment with «url: https://…» in it is not the page's address.
+  /<!--[^>]{0,200}?\bSingleFile\b[\s\S]{0,400}?\burl:\s*(https?:\/\/[^\s>]+)/i,
   /<link\b[^>]*\brel=["']?canonical["']?[^>]*\bhref=["']?(https?:\/\/[^"'\s>]+)/i,
   /<link\b[^>]*\bhref=["']?(https?:\/\/[^"'\s>]+)["']?[^>]*\brel=["']?canonical\b/i,
   /<meta\b[^>]*\bproperty=["']?og:url["']?[^>]*\bcontent=["']?(https?:\/\/[^"'\s>]+)/i,
@@ -151,10 +181,29 @@ const esc = (s: string): string =>
 
 const stripFrontmatter = (md: string): string => md.replace(/^---\n[\s\S]*?\n---\n+/, '');
 
+// Only absolute http(s) and mailto links stay links in the preview, and only http(s) and data:image images load;
+// anything else (javascript:, data:, blob:, file:, or a relative path, which would resolve against this site)
+// shows as its text. Core drops javascript: hrefs, but page TEXT such as «<javascript:…>» or «[x](javascript:…)»
+// reaches the Markdown as written, and Markdown makes it a link.
+const LINK_SCHEMES = new Set(['http:', 'https:', 'mailto:']);
+const safeUrl = (href: string, image: boolean): string | null => {
+  try {
+    const u = new URL(href); // throws on a relative href
+    const ok = image
+      ? u.protocol === 'http:' || u.protocol === 'https:' || /^data:image\//i.test(u.href)
+      : LINK_SCHEMES.has(u.protocol);
+    return ok ? u.href : null;
+  } catch {
+    return null;
+  }
+};
+
 // ---- UI ------------------------------------------------------------------------------------------
 let lastMd = '';
 let lastTitle = '';
+let lastFm = true; // whether lastMd starts with core's frontmatter
 let previewStale = true;
+let running = false;
 let renderer: { parse(md: string): string } | null = null;
 
 const setStatus = (text: string, kind: 'info' | 'error' = 'info'): void => {
@@ -207,9 +256,11 @@ const wireTabs = (list: HTMLElement): void => {
 
 const previewDoc = (bodyHtml: string, images: boolean): string =>
   '<!doctype html><html><head><meta charset="utf-8">' +
-  // default-src 'none': the frame fetches nothing, and the sandbox attribute already stops every script.
-  `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:${images ? ' https: http:' : ''}">` +
-  '<base target="_blank"><style>' +
+  // default-src 'none': the frame fetches nothing (images only once ticked), and the sandbox attribute already
+  // stops every script and form; base-uri and form-action are not covered by default-src, so they are named.
+  // no-referrer: an image host or a clicked link's site is not told the visitor came from this converter.
+  `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:${images ? ' https: http:' : ''}; base-uri 'none'; form-action 'none'">` +
+  '<meta name="referrer" content="no-referrer"><base target="_blank"><style>' +
   'body{font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:16px 20px;color:#17181c;background:#fff;overflow-wrap:anywhere}' +
   'img{max-width:100%;height:auto}pre{overflow:auto;background:#f3f4f6;padding:10px;border-radius:6px}code{font-family:ui-monospace,Consolas,monospace;font-size:.9em}' +
   'table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #d0d4da;padding:4px 8px}blockquote{margin:0;padding-left:12px;border-left:3px solid #d0d4da;color:#4b5563}' +
@@ -218,24 +269,49 @@ const previewDoc = (bodyHtml: string, images: boolean): string =>
 
 const renderPreview = async (): Promise<void> => {
   if (!lastMd) return;
-  if (!renderer) {
-    const { Marked } = await import('marked');
-    // Raw HTML inside the Markdown is shown as text, never as markup.
-    renderer = new Marked({ gfm: true, async: false, renderer: { html: ({ text }) => esc(text) } }) as unknown as {
-      parse(md: string): string;
-    };
+  try {
+    if (!renderer) {
+      const { Marked } = await import('marked');
+      renderer = new Marked({
+        gfm: true,
+        async: false,
+        renderer: {
+          // Raw HTML inside the Markdown is shown as text, never as markup.
+          html: ({ text }) => esc(text),
+          link(token) {
+            const inner = this.parser.parseInline(token.tokens);
+            const href = safeUrl(token.href, false);
+            if (!href) return inner;
+            const title = token.title ? ` title="${esc(token.title)}"` : '';
+            return `<a href="${esc(href)}"${title} rel="noopener noreferrer">${inner}</a>`;
+          },
+          image(token) {
+            const src = safeUrl(token.href, true);
+            if (!src) return esc(token.text);
+            const title = token.title ? ` title="${esc(token.title)}"` : '';
+            return `<img src="${esc(src)}" alt="${esc(token.text)}"${title}>`;
+          },
+        },
+      }) as unknown as { parse(md: string): string };
+    }
+    const images = ($('p2a-loadimg') as HTMLInputElement).checked;
+    const body = renderer.parse(lastFm ? stripFrontmatter(lastMd) : lastMd);
+    ($('p2a-frame') as HTMLIFrameElement).srcdoc = previewDoc(body, images);
+    previewStale = false;
+  } catch {
+    setStatus('The preview could not load. Reload the page and try again; the Markdown tab still has the result.', 'error');
   }
-  const images = ($('p2a-loadimg') as HTMLInputElement).checked;
-  ($('p2a-frame') as HTMLIFrameElement).srcdoc = previewDoc(renderer.parse(stripFrontmatter(lastMd)), images);
-  previewStale = false;
 };
 
-const show = (r: ConversionResult, ms: number, inBytes: number, base: string | undefined, detected: string | null): void => {
+const show = (r: ConversionResult, ms: number, inBytes: number, opts: HtmlToMarkdownOptions, detected: string | null): void => {
   // Without a page address core writes `source: "about:blank"` (its default base). The MCP server always has a
   // URL; here that line would only be noise in the downloaded file, so it is dropped. Nothing else changes.
-  const md = base || !r.markdown.startsWith('---\n') ? r.markdown : r.markdown.replace(/^source: "about:blank"\n/m, '');
+  const base = opts.baseUrl;
+  const fm = opts.includeFrontmatter !== false;
+  const md = base || !fm ? r.markdown : r.markdown.replace(/^source: "about:blank"\n/m, '');
   lastMd = md;
   lastTitle = r.title;
+  lastFm = fm;
   previewStale = true;
   $('p2a-out').hidden = false;
   ($('p2a-md') as HTMLTextAreaElement).value = md;
@@ -254,37 +330,54 @@ const show = (r: ConversionResult, ms: number, inBytes: number, base: string | u
   setStatus(empty ? 'Converted, but the file holds no readable body text.' : `Converted “${r.title || 'untitled page'}”.`);
 };
 
+const FAILURES: Record<string, string> = {
+  timeout:
+    'The conversion took longer than 60 seconds and was stopped. A very large page can do that; the extension converts it in your tab.',
+  'worker-crashed':
+    'The converter stopped on this file, most likely out of memory, and it was not retried. A smaller file may work; the Chrome extension converts the page in your own tab.',
+  'main-too-big': `This browser cannot run the converter in the background, so it converts files up to ${MAIN_THREAD_MAX_BYTES / MB} MB here. A current Chrome, Edge, Firefox or Safari converts up to ${LIMIT_TEXT}.`,
+};
+
 const run = async (html: string, label: string): Promise<void> => {
+  if (running) {
+    setStatus(`Still converting; ${label} was not started. Try again when this one is done.`);
+    return;
+  }
   const inBytes = new TextEncoder().encode(html).length;
   if (!html.trim()) {
     setStatus('Nothing to convert: paste the HTML first.', 'error');
     return;
   }
   if (inBytes > MAX_BYTES) {
-    setStatus(`${label} is ${fmtSize(inBytes)}; the limit is 10 MB.`, 'error');
+    setStatus(`${label} is ${fmtSize(inBytes)}; the limit is ${LIMIT_TEXT} on this device.`, 'error');
     return;
   }
   const detected = detectSource(html);
   const opts = currentOptions(detected);
+  running = true;
   setBusy(true);
   setStatus(`Converting ${label} (${fmtSize(inBytes)})…`);
-  const out = await convert(html, opts);
-  setBusy(false);
+  let res: { out: Outcome; engine: Engine };
+  try {
+    res = await convert(html, opts, inBytes);
+  } catch (err) {
+    res = { out: { ok: false, error: err instanceof Error ? err.message : String(err) }, engine: mainThread ? 'main' : 'worker' };
+  } finally {
+    running = false;
+    setBusy(false);
+  }
+  $('p2a-conv').dataset.engine = res.engine;
+  const { out } = res;
   if (!out.ok) {
-    setStatus(
-      out.error === 'timeout'
-        ? 'The conversion took longer than 60 seconds and was stopped. A very large page can do that; the extension converts it in your tab.'
-        : `The conversion failed: ${out.error}`,
-      'error',
-    );
+    setStatus(FAILURES[out.error] ?? `The conversion failed: ${out.error}`, 'error');
     return;
   }
-  show(out.result, out.ms, inBytes, opts.baseUrl, detected);
+  show(out.result, out.ms, inBytes, opts, detected);
 };
 
 const onFile = async (file: File): Promise<void> => {
   if (file.size > MAX_BYTES) {
-    setStatus(`${file.name} is ${fmtSize(file.size)}; the limit is 10 MB.`, 'error');
+    setStatus(`${file.name} is ${fmtSize(file.size)}; the limit is ${LIMIT_TEXT} on this device.`, 'error');
     return;
   }
   const { text } = decodeHtml(await file.arrayBuffer());
@@ -295,6 +388,12 @@ const init = (): void => {
   const root = document.getElementById('p2a-conv');
   if (!root || root.dataset.ready) return;
   root.dataset.ready = '1';
+  root.dataset.limit = String(MAX_BYTES);
+  // A fresh copy of the page (a client-side navigation back to it) starts with no result of an earlier visit.
+  lastMd = '';
+  lastTitle = '';
+  previewStale = true;
+  $('p2a-limit').textContent = LIMIT_TEXT;
   for (const list of root.querySelectorAll<HTMLElement>('[role="tablist"]')) wireTabs(list);
 
   const file = $('p2a-file') as HTMLInputElement;
@@ -362,7 +461,7 @@ const init = (): void => {
 };
 
 // The engine (~400 KB) and the Markdown renderer load once the page is idle, so a conversion itself
-// makes no request at all: the Network panel stays empty while a file converts.
+// makes no request at all: once the page has loaded, the Network panel stays empty while a file converts.
 const warmUp = (): void => {
   if (!mainThread) {
     try {

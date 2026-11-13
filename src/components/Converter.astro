@@ -17,7 +17,7 @@ const cws =
     <label class="p2a-drop" id="p2a-drop">
       <input type="file" id="p2a-file" accept=".html,.htm,.xhtml,.shtml,text/html,application/xhtml+xml" />
       <span class="p2a-drop-main">Choose an .html file or drop it here</span>
-      <span class="p2a-hint">A page saved with Ctrl+S (Cmd+S on a Mac), up to 10 MB</span>
+      <span class="p2a-hint">A page saved with Ctrl+S (Cmd+S on a Mac), up to <span id="p2a-limit">10 MB</span></span>
     </label>
   </div>
 
@@ -69,8 +69,8 @@ const cws =
   </details>
 
   <p class="p2a-private">
-    🔒 Converted in this browser tab by <code>@page2ai/core</code>, the engine of the Page2AI MCP server. The file
-    is never uploaded: open DevTools → Network and convert a file, nothing is sent.
+    🔒 Converted in this browser tab by <code>@page2ai/core</code>, the engine of the Page2AI MCP server. No request
+    carries your file: open DevTools → Network, let this page finish loading, then convert one; no request appears.
   </p>
 
   <p id="p2a-status" class="p2a-status" role="status" aria-live="polite"></p>
