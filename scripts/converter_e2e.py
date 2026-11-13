@@ -85,6 +85,9 @@ while _bodies and _size < 6 * 1024 * 1024 and _i < 10_000:
         _parts.append(_b)
         _size += len(_b.encode("utf-8"))
 LONG.write_text("<html><head><title>Long page</title></head><body>" + "".join(_parts) + "</body></html>", encoding="utf-8")
+ROWS = tmp / "rows90k.html"  # P2A-031: 90,000 short rows, ~4.95 MB, ~180,000 Markdown lines; core <= 0.4.5 failed it whole
+ROWS.write_text("<html><head><title>dense</title></head><body><main>"
+                + "<div><p>Row <b>bold</b> <a href='/x'>link</a></p></div>" * 90_000 + "</main></body></html>", encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -288,6 +291,16 @@ with sync_playwright() as p:
     final = page.text_content("#p2a-status") or ""
     check("a second conversion while one runs is not started, and the first one's result is shown",
           during.startswith("Still converting") and "Long page" in final and "Second" not in final, f"during={during[:50]!r} final={final[:50]!r}")
+
+    # P2A-031: a page that renders to ~120,000+ lines came back as «Page2AI extraction failed» (core <= 0.4.5).
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    page.set_input_files("#p2a-file", str(ROWS))
+    page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=120_000)
+    final = page.text_content("#p2a-status") or ""
+    rows = page.evaluate(r"""() => document.querySelector('#p2a-md').value.split('\n')
+      .filter((l) => l === 'Row **bold** [link](https://example.com/x)').length""")
+    check("P2A-031: a 90,000-row page (4.95 MB, ~180,000 lines) converts whole",
+          "“dense”" in final and rows == 90_000, f"status={final[:60]!r} rows={rows}")
 
     # Download
     convert_file(SAVED, None)
