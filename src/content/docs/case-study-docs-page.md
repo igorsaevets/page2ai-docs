@@ -13,6 +13,14 @@ head:
         "datePublished": "2026-11-13",
         "author": { "@type": "Person", "name": "Igor Saevets", "url": "https://igorsaevets.github.io/page2ai-docs/about/" }
       }
+  - tag: style
+    content: |
+      @media (min-width: 72rem) {
+        .right-sidebar-container { width: 14rem; }
+        [data-has-sidebar][data-has-toc] .main-pane { width: calc(100% - 14rem); }
+        .sl-container { max-width: 64rem; }
+        .sl-markdown-content :is(th, td) { padding-inline: 0.5rem; }
+      }
 ---
 
 An agent that reads a web page gets whatever its fetch tool returns. On 2026-11-13 we sent one page through 12 tools and measured what came back. We checked how much of the page's text arrived, how much else arrived with it, and whether headings, code blocks and tables survived as Markdown.
@@ -25,42 +33,64 @@ An agent that reads a web page gets whatever its fetch tool returns. On 2026-11-
 - **The answer key:** the site publishes a Markdown version of each page (append `.md` to the URL). It is the author's own text, so we scored every output against it. Page2AI does not read it: it converts the page itself. The key was used only for scoring.
 - **The calls:** each tool was called the way an agent calls it: the URL, Markdown output where the tool offers a choice, defaults for everything else. Calls went through each tool's MCP server from Claude Code, except where the table says "Python library".
 
-Five numbers per output:
+Five numbers per output, and a score built from them. **↑ means higher is better, ↓ means lower is better.**
 
-- **Text:** the share of the key's words that appear in the output.
-- **Extra:** the share of the output's words that are not in the key, such as navigation, page furniture and embedded data.
-- **Headings:** the share of the key's headings that appear as Markdown headings.
-- **Code:** the share of the key's code blocks found inside code fences.
-- **Tables:** the share of the key's table rows found as Markdown table rows.
+- **Text ↑:** the share of the key's words that appear in the output.
+- **Extra ↓:** the share of the output's words that are not in the key: navigation, page furniture and code that the page carries for its own use (on this site, its embedded configuration). The model reads all of it and needs none of it. Every point of Extra is context window spent for nothing, so the lower, the better.
+- **Headings ↑:** the share of the key's headings that appear as Markdown headings.
+- **Code ↑:** the share of the key's code blocks found inside code fences.
+- **Tables ↑:** the share of the key's table rows found as Markdown table rows.
+- **Score ↑:** Text × (100% − Extra) × the average of Headings, Code and Tables. A perfect copy of the key scores 100. A tool scores low if it loses text, adds junk or flattens the structure. The tables below are sorted by it.
 
 ## Tools that converted the page
 
-| Tool | How it was called | Characters | Text | Extra | Headings | Code | Tables |
-|---|---|---:|---:|---:|---:|---:|---:|
-| **Page2AI** (MCP 0.10.1) | `page_to_markdown`, whole page ¹ | 50,114 | 98.9% | 1.9% | 100% | 100% | 100% |
-| Firecrawl | `firecrawl_scrape`, `formats: ["markdown"]` | 288,158 | 99.6% | 81.5% | 97% | 100% | 100% |
-| Tavily | `tavily_extract`, `format: "markdown"` | 276,871 | 99.6% | 81.9% | 100% | 100% | 100% |
-| Jina Reader | `read_url` | 267,415 | 99.6% | 81.7% | 3% | 100% | 100% |
-| Nimble | `nimble_extract`, `output_format: "markdown"` | 55,250 | 99.0% | 5.3% | 3% | 100% | 100% |
-| scrapling 0.4.12 | Python library, defaults | 277,773 | 99.6% | 81.7% | 100% | 100% | 100% |
-| scrapling 0.4.12 | MCP `get`, defaults | 26,551 | 63.6% | 2.5% | 100% | 0% | 0% |
-| crawl4ai 0.9.2 | Python library, defaults | 280,890 | 99.6% | 81.7% | 3% | 100% | 100% |
-| crawl4ai | MCP `crawl_url`, defaults ² | 20,000 | 30.7% | 4.4% | 3% | 15% | 0% |
-| crawl4ai | MCP `crawl_url`, `clean: true` ² | 20,000 | 43.6% | 0.3% | 44% | 46% | 0% |
-| trafilatura 2.2.0 | Python library, tables and formatting on | 22,762 | 58.4% | 1.6% | 97% | 0% | 0% |
+| Tool | Called as | Characters | Text ↑ | Extra ↓ | Headings ↑ | Code ↑ | Tables ↑ | Score ↑ |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| **Page2AI** 0.10.1 | MCP, whole page ¹ | 50,114 | 98.9% | 1.9% | 100% | 100% | 100% | **97** |
+| Nimble | MCP, Markdown | 55,250 | 99.0% | 5.3% | 3% | 100% | 100% | 63 |
+| scrapling 0.4.12 | MCP, defaults | 26,551 | 63.6% | 2.5% | 100% | 0% | 0% | 21 |
+| trafilatura 2.2.0 | Python library ³ | 22,762 | 58.4% | 1.6% | 97% | 0% | 0% | 19 |
+| Firecrawl | MCP, Markdown | 288,158 | 99.6% | 81.5% | 97% | 100% | 100% | 18 |
+| scrapling 0.4.12 | Python library | 277,773 | 99.6% | 81.7% | 100% | 100% | 100% | 18 |
+| Tavily | MCP, Markdown | 276,871 | 99.6% | 81.9% | 100% | 100% | 100% | 18 |
+| crawl4ai | MCP, `clean: true` ² | 20,000 | 43.6% | 0.3% | 44% | 46% | 0% | 13 |
+| Jina Reader | MCP | 267,415 | 99.6% | 81.7% | 3% | 100% | 100% | 12 |
+| crawl4ai 0.9.2 | Python library | 280,890 | 99.6% | 81.7% | 3% | 100% | 100% | 12 |
+| crawl4ai | MCP, defaults ² | 20,000 | 30.7% | 4.4% | 3% | 15% | 0% | 2 |
+
+Ties are ordered by the unrounded score.
 
 ¹ A local Page2AI server returns a long page in parts. The first call brings 30,000 characters and a list of sections to ask for next, and `max_length` raises the limit. The hosted endpoint returns the whole page at once. The local server (core 0.4.4) and the hosted one (core 0.4.3) returned the same text.
 
 ² The crawl4ai MCP server we use caps a result at 20,000 characters unless the caller raises `content_limit`.
 
+³ trafilatura with tables, links and formatting turned on.
+
+**The exact calls:**
+
+- **Page2AI:** `page_to_markdown` with the URL.
+- **Nimble:** `nimble_extract` with `output_format: "markdown"`.
+- **scrapling:**
+  - the MCP tool `get` with the URL;
+  - the library's `scrapling extract get`.
+- **trafilatura:** `extract(…, output_format="markdown", include_tables=True, include_links=True, include_formatting=True)`.
+- **Firecrawl:** `firecrawl_scrape` with `formats: ["markdown"]`.
+- **Tavily:** `tavily_extract` with `format: "markdown"` and `extract_depth: "basic"`.
+- **crawl4ai:**
+  - the MCP tool `crawl_url` with the URL, then again with `clean: true`;
+  - the library's `AsyncWebCrawler().arun()`.
+- **Jina Reader:** `read_url` with the URL.
+
 ## Tools that received the site's own Markdown
 
-| Tool | Characters | Text | Extra | What came back |
-|---|---:|---:|---:|---|
-| Parallel `web_fetch`, `full_content: true` | 43,205 | 99.9% | 1.4% | the site's Markdown |
-| MCP reference fetch server (2026.11.11) | 42,654 | 100% | 0% | the site's Markdown; a first call returns 5,000 characters |
-| Exa `web_fetch_exa` | 38,117 | 99.1% | 0.1% | text with the Markdown source's syntax |
-| Claude Code WebFetch | not scored | | | a model's answer about a `text/markdown` response |
+These outputs are the key itself, or nearly, so they score close to 100 without converting anything.
+
+| Tool | Characters | Text ↑ | Extra ↓ | Score ↑ | What came back |
+|---|---:|---:|---:|---:|---|
+| MCP reference fetch server (2026.11.11) | 42,654 | 100% | 0.0% | 100 | the site's Markdown; a first call returns 5,000 characters |
+| Exa `web_fetch_exa` | 38,117 | 99.1% | 0.1% | 99 | text with the Markdown source's syntax |
+| Parallel `web_fetch`, `full_content: true` | 43,205 | 99.9% | 1.4% | 99 | the site's Markdown |
+| Claude Code WebFetch | not scored | | | | a model's answer about a `text/markdown` response |
 
 The Markdown source has syntax that a converted page does not have:
 
@@ -72,6 +102,7 @@ Parallel and the fetch server returned all three, and Exa returned the callouts.
 
 ## What the numbers say
 
+- **Nimble came closest to Page2AI.** It delivered nearly all the text, little extra and every code block and table, but its headings arrive as plain lines.
 - **Extra text costs as much as missing text.** Five of the converters delivered nearly the whole page, and then six to seven times its length in total. About 80% of each of those outputs is one line of the site's embedded configuration (`{"docsConfig":{"theme":"mint",…`, 225,000 to 241,000 characters), and navigation adds more. An agent pays for every character it reads.
 - **Headings are where converters differ.** Jina, Nimble and the crawl4ai library wrote the page's headings as plain lines, so the agent loses the outline.
 - **Defaults decide what an agent gets.** Through their MCP servers, crawl4ai returned the first 20,000 characters of the page, and scrapling returned a short main-content extract without code blocks or tables. The same libraries called directly returned everything.
