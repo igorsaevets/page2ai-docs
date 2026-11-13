@@ -16,6 +16,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 
 from playwright.sync_api import sync_playwright
 
@@ -88,6 +89,8 @@ LONG.write_text("<html><head><title>Long page</title></head><body>" + "".join(_p
 ROWS = tmp / "rows90k.html"  # P2A-031: 90,000 short rows, ~4.95 MB, ~180,000 Markdown lines; core <= 0.4.5 failed it whole
 ROWS.write_text("<html><head><title>dense</title></head><body><main>"
                 + "<div><p>Row <b>bold</b> <a href='/x'>link</a></p></div>" * 90_000 + "</main></body></html>", encoding="utf-8")
+COMMENTS = tmp / "comments32.html"  # core <= 0.4.6: each leading comment of a page without <html> doubled the time
+COMMENTS.write_text("<!DOCTYPE html>" + "<!-- c -->" * 32 + "<title>Comments</title><p>Hello after comments</p>", encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -301,6 +304,23 @@ with sync_playwright() as p:
       .filter((l) => l === 'Row **bold** [link](https://example.com/x)').length""")
     check("P2A-031: a 90,000-row page (4.95 MB, ~180,000 lines) converts whole",
           "“dense”" in final and rows == 90_000, f"status={final[:60]!r} rows={rows}")
+
+    # core 0.4.7 (T241): a page without <html> whose first 32 nodes are comments took about a minute (doubling per comment).
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    t0 = time.monotonic()
+    page.set_input_files("#p2a-file", str(COMMENTS))
+    try:  # core 0.4.6 on the live site (T241 control): still converting after 300 s
+        page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=60_000)
+    except Exception:
+        pass
+    took = time.monotonic() - t0
+    final = page.text_content("#p2a-status") or ""
+    md = page.evaluate("document.querySelector('#p2a-md').value")
+    check("0.4.7: a page opening with 32 comments converts in seconds, not minutes",
+          "“Comments”" in final and "Hello after comments" in md and took < 10, f"took={took:.1f}s status={final[:50]!r}")
+    if not final.startswith("Converted"):
+        print("VERDICT: FAIL (the converter is still busy with the comments page; later checks not run)")
+        sys.exit(1)
 
     # Download
     convert_file(SAVED, None)
