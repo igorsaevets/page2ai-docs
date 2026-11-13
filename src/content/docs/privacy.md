@@ -42,13 +42,19 @@ Every product listed above runs entirely on the user's own machine. The hosted e
 ### Online converter on this site
 
 - The [HTML to Markdown converter](../convert/) runs `@page2ai/core` in your browser tab. The HTML you paste or the
-  file you choose is read by the browser and converted in a background thread of the page; it is never sent to the
-  author or anyone else, never stored, and gone when you close the tab.
+  file you choose is read by the browser and converted in a background thread of the page; no request carries it to
+  the author or anyone else, it is never stored, and it is gone when you close the tab (unless you copied or
+  downloaded the Markdown).
 - The page loads its own scripts from this site and nothing else. The preview shows the Markdown in a sandboxed frame
   that runs no script and loads no image until you tick «Load images»; then the browser loads those images from
-  their own sites, which see your IP address, as when you open the page itself.
+  their own sites, which see your IP address, as when you open the page itself, but not which page sent you. A link
+  you click in the preview opens in a new tab, again without telling that site where you came from.
+- The Chrome Web Store links on the converter page carry a campaign tag (`utm_source=page2ai-docs`), so the store's
+  statistics count visits that came from this page; the tag holds nothing about you.
 - This site is hosted on GitHub Pages, which, like any web host, receives your IP address and browser details when
-  you load a page; see GitHub's privacy statement. There are no cookies, analytics or trackers on this site.
+  you load a page; see GitHub's privacy statement. There are no cookies, analytics or trackers on this site. The
+  site keeps your light or dark theme choice, and which sidebar groups are open, in your browser's own storage;
+  neither is ever sent anywhere.
 
 ### `@page2ai/core` npm library
 
