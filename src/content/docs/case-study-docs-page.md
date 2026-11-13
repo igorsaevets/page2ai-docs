@@ -1,7 +1,11 @@
 ---
-title: 'Case study: 12 tools on one docs page'
-description: We fetched the Claude Code plugin manifest reference with 12 web-to-Markdown tools and scored each output against the site's own Markdown. Measured 2026-11-13. By Igor Saevets.
+title: 'Web-to-Markdown benchmark: 12 tools on one docs page'
+description: 'Single-page benchmark of 12 web-to-Markdown tools for LLMs and AI agents (Page2AI, Firecrawl, Jina Reader, Tavily, Exa, Nimble, Parallel, crawl4ai, scrapling, trafilatura), scored on text, noise and structure. Measured 2026-11-13.'
 head:
+  - tag: meta
+    attrs:
+      name: keywords
+      content: 'web to markdown, webpage to markdown, html to markdown, url to markdown, markdown converter benchmark, web scraping benchmark, LLM-ready markdown, markdown for LLM, AI agents, MCP server, MCP fetch tool, context window, token efficiency, RAG ingestion, Firecrawl alternative, Jina Reader alternative, Firecrawl vs Jina Reader, Tavily extract, Exa web fetch, Nimble extract, Parallel web fetch, crawl4ai, scrapling, trafilatura, Claude Code'
   - tag: script
     attrs:
       type: application/ld+json
@@ -9,9 +13,28 @@ head:
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Case study: 12 web-to-Markdown tools on one docs page",
+        "headline": "Web-to-Markdown benchmark: 12 tools on one docs page",
+        "description": "Single-page benchmark of 12 web-to-Markdown tools for LLMs and AI agents, scored on text, noise and structure against the site's own Markdown.",
+        "keywords": "web to markdown, html to markdown, markdown converter benchmark, web scraping benchmark, LLM-ready markdown, AI agents, MCP fetch tool, context window, token efficiency, Firecrawl alternative, Jina Reader alternative",
         "datePublished": "2026-11-13",
-        "author": { "@type": "Person", "name": "Igor Saevets", "url": "https://igorsaevets.github.io/page2ai-docs/about/" }
+        "dateModified": "2026-11-13",
+        "author": { "@type": "Person", "name": "Igor Saevets", "url": "https://igorsaevets.github.io/page2ai-docs/about/" },
+        "about": [
+          { "@type": "Thing", "name": "HTML to Markdown conversion" },
+          { "@type": "Thing", "name": "Web scraping for LLMs and AI agents" }
+        ],
+        "mentions": [
+          { "@type": "SoftwareApplication", "name": "Page2AI", "url": "https://igorsaevets.github.io/page2ai-docs/" },
+          { "@type": "SoftwareApplication", "name": "Firecrawl" },
+          { "@type": "SoftwareApplication", "name": "Jina Reader" },
+          { "@type": "SoftwareApplication", "name": "Tavily" },
+          { "@type": "SoftwareApplication", "name": "Exa" },
+          { "@type": "SoftwareApplication", "name": "Nimble" },
+          { "@type": "SoftwareApplication", "name": "Parallel" },
+          { "@type": "SoftwareApplication", "name": "crawl4ai" },
+          { "@type": "SoftwareApplication", "name": "scrapling" },
+          { "@type": "SoftwareApplication", "name": "trafilatura" }
+        ]
       }
   - tag: style
     content: |
@@ -23,9 +46,16 @@ head:
       }
 ---
 
-An agent that reads a web page gets whatever its fetch tool returns. On 2026-11-13 we sent one page through 12 tools and measured what came back. We checked how much of the page's text arrived, how much else arrived with it, and whether headings, code blocks and tables survived as Markdown.
+An AI agent or LLM that reads a web page gets whatever its web-to-Markdown tool returns. On 2026-11-13 we sent one page through 12 tools and measured what came back. We checked how much of the page's text arrived, how much else arrived with it, and whether headings, code blocks and tables survived as Markdown.
 
 **Disclosure:** Page2AI is our project. The page, the calls and the scoring were the same for every tool.
+
+## Key findings
+
+- **Highest-scoring converter:** Page2AI, 97 of 100. It delivered 98.9% of the text with 1.9% extra, and every heading, code block and table.
+- **Closest competitor:** Nimble, 63. Its text, code and tables were complete, but its headings arrived as plain lines.
+- **Most noise:** Firecrawl, Tavily, Jina Reader and the scrapling and crawl4ai libraries returned six to seven times the page's length. About 80% of it was the site's embedded configuration: context window an LLM pays for and does not need.
+- **No conversion at all:** Exa, Parallel and the MCP reference fetch server received the site's own Markdown copy instead of converting the HTML.
 
 ## The page and the answer key
 
@@ -116,12 +146,26 @@ Parallel and the fetch server returned all three, and Exa returned the callouts.
 
 Both defects are logged as open issues.
 
+## Frequently asked questions
+
+**Which web-to-Markdown tool gives an LLM the cleanest Markdown?**
+On this page, Page2AI (score 97), then Nimble (63). Every other converter either lost part of the page or added several times its length in navigation and embedded code. The result holds for one documentation page; other pages can rank differently.
+
+**Why does extra text matter for AI agents?**
+An agent reads the whole tool result into its context window. On this page, about 80% extra turned a 42,591-character page into 267,000 to 288,000 characters. That is more tokens and less room for the task. In Claude Code these results were too large to show inline, so they were saved to a file instead.
+
+**Do Exa and Parallel convert HTML to Markdown?**
+On this page they returned the site's own Markdown copy. This test does not show how they convert a page that has no such copy.
+
+**How do I reproduce this benchmark?**
+Fetch the answer key with `curl https://code.claude.com/docs/en/plugins-reference.md`. Call each tool on `https://code.claude.com/docs/en/plugins-reference`, then score the output with the rules under "How the scores were computed" below.
+
 ## Limits of this test
 
 - **One page, one day.** Hosted services change their extraction without notice, so rerun before you rely on a number.
 - **Default settings.** Most of these tools can be tuned with CSS selectors, content filters or higher limits. We measured what a plain call returns.
 - **What the scores miss.** The key is the author's Markdown, not a judgment of what an agent needs. Word overlap does not check reading order or link targets.
-- **A case study, not a benchmark.** For a multi-site benchmark, see [page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark).
+- **One page, not a multi-site benchmark.** For the multi-site benchmark, see [page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark).
 
 We do not republish the outputs, since each one is a copy of Anthropic's page.
 
