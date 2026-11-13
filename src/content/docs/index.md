@@ -15,6 +15,9 @@ hero:
       link: /page2ai-docs/mcp/
       icon: external
       variant: secondary
+    - text: Convert HTML online
+      link: /page2ai-docs/convert/
+      variant: minimal
 head:
   - tag: script
     attrs:

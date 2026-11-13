@@ -87,6 +87,7 @@ export default defineConfig({
       plugins: [starlightLlmsTxt()],
       sidebar: [
         { label: 'Overview', slug: 'index' },
+        { label: 'Online converter', slug: 'convert' },
         { label: 'Install', slug: 'install' },
         { label: 'MCP server', slug: 'mcp' },
         { label: 'Comparison', slug: 'comparison' },
