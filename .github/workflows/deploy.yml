@@ -33,6 +33,8 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+          # Without it the action tars dist/ with --exclude=.[^/]* and /.well-known/security.txt answers 404 (P2A-037).
+          include-hidden-files: true
   deploy:
     needs: build
     runs-on: ubuntu-latest
