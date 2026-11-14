@@ -74,6 +74,14 @@ FALSEURL.write_text(
     '<p>See <a href="next.html">the next page</a>.</p></main></body></html>',
     encoding="utf-8",
 )
+# Defined before LONG, which falls back to it when no corpus directory is given (T242: it was defined after, so the
+# documented call without one died with a NameError).
+SAVED = tmp / "saved.html"
+SAVED.write_text(
+    "<!-- saved from url=(0034)https://example.org/guide/start.html -->\n<html><head><title>Saved</title></head>"
+    '<body><main><h1>Saved page</h1><p>See <a href="next.html">the next page</a>.</p></main></body></html>',
+    encoding="utf-8",
+)
 BODY_RE = re.compile(r"<body[^>]*>([\s\S]*)</body>", re.I)
 LONG = tmp / "long.html"  # ~6 MB of real page bodies: a conversion that lasts long enough to race a second one
 _bodies = [f"<section>{m.group(1)}</section>" for f in (files or [SAVED])
@@ -91,6 +99,9 @@ ROWS.write_text("<html><head><title>dense</title></head><body><main>"
                 + "<div><p>Row <b>bold</b> <a href='/x'>link</a></p></div>" * 90_000 + "</main></body></html>", encoding="utf-8")
 COMMENTS = tmp / "comments32.html"  # core <= 0.4.6: each leading comment of a page without <html> doubled the time
 COMMENTS.write_text("<!DOCTYPE html>" + "<!-- c -->" * 32 + "<title>Comments</title><p>Hello after comments</p>", encoding="utf-8")
+BANGS = tmp / "bangs.html"  # P2A-035, core <= 0.4.7: one element's inline children cost the square of its text
+BANGS.write_text("<html><head><title>Bangs</title></head><body><main><p>"
+                 + ("!<a href='/x'>" + "x" * 300 + "</a>") * 5_000 + "</p></main></body></html>", encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -101,12 +112,6 @@ CP1251 = tmp / "cp1251.html"
 CP1251.write_bytes(
     '<html><head><meta charset="windows-1251"><title>Тест</title></head><body><main><h1>Привет, мир</h1>'
     "<p>Кириллица в windows-1251.</p></main></body></html>".encode("cp1251")
-)
-SAVED = tmp / "saved.html"
-SAVED.write_text(
-    "<!-- saved from url=(0034)https://example.org/guide/start.html -->\n<html><head><title>Saved</title></head>"
-    '<body><main><h1>Saved page</h1><p>See <a href="next.html">the next page</a>.</p></main></body></html>',
-    encoding="utf-8",
 )
 EMPTY = tmp / "empty.html"
 EMPTY.write_text('<html><head><title>App</title></head><body><div id="root"></div><script src="app.js"></script></body></html>', encoding="utf-8")
@@ -320,6 +325,25 @@ with sync_playwright() as p:
           "“Comments”" in final and "Hello after comments" in md and took < 10, f"took={took:.1f}s status={final[:50]!r}")
     if not final.startswith("Converted"):
         print("VERDICT: FAIL (the converter is still busy with the comments page; later checks not run)")
+        sys.exit(1)
+
+    # P2A-035 (core 0.4.8, T242): 5,000 links in one paragraph, each after a "!" the renderer escapes; core 0.4.7 re-read
+    # the whole paragraph's text once per link (about 25 s in Node).
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    t0 = time.monotonic()
+    page.set_input_files("#p2a-file", str(BANGS))
+    try:
+        page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=120_000)
+    except Exception:
+        pass
+    took = time.monotonic() - t0
+    final = page.text_content("#p2a-status") or ""
+    escaped = page.evaluate(r"""() => document.querySelector('#p2a-md').value
+      .split('\\![' + 'x'.repeat(300) + '](https://example.com/x)').length - 1""")
+    check("0.4.8: 5,000 links each after a '!' convert in seconds (P2A-035)",
+          "“Bangs”" in final and escaped == 5_000 and took < 10, f"took={took:.1f}s escaped={escaped} status={final[:50]!r}")
+    if not final.startswith("Converted"):
+        print("VERDICT: FAIL (the converter is still busy with the P2A-035 page; later checks not run)")
         sys.exit(1)
 
     # Download
