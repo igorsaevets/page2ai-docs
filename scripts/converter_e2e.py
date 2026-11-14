@@ -102,6 +102,9 @@ COMMENTS.write_text("<!DOCTYPE html>" + "<!-- c -->" * 32 + "<title>Comments</ti
 BANGS = tmp / "bangs.html"  # P2A-035, core <= 0.4.7: one element's inline children cost the square of its text
 BANGS.write_text("<html><head><title>Bangs</title></head><body><main><p>"
                  + ("!<a href='/x'>" + "x" * 300 + "</a>") * 5_000 + "</p></main></body></html>", encoding="utf-8")
+PRES = tmp / "pres.html"  # P2A-037, core <= 0.4.8: every <pre> counted the <pre> under three of its ancestors
+PRES.write_text("<html><head><title>Pres</title></head><body><main><div>"
+                + "<pre>code-line</pre>" * 8_000 + "</div></main></body></html>", encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -344,6 +347,25 @@ with sync_playwright() as p:
           "“Bangs”" in final and escaped == 5_000 and took < 10, f"took={took:.1f}s escaped={escaped} status={final[:50]!r}")
     if not final.startswith("Converted"):
         print("VERDICT: FAIL (the converter is still busy with the P2A-035 page; later checks not run)")
+        sys.exit(1)
+
+    # P2A-037 (core 0.4.9, T243): 8,000 sibling code blocks (96 KB); core 0.4.8 searched the container for the other
+    # <pre> once per <pre> (about 20 s in Node).
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    t0 = time.monotonic()
+    page.set_input_files("#p2a-file", str(PRES))
+    try:
+        page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=120_000)
+    except Exception:
+        pass
+    took = time.monotonic() - t0
+    final = page.text_content("#p2a-status") or ""
+    blocks = page.evaluate(r"""() => document.querySelector('#p2a-md').value
+      .split('\n').filter((l) => l === 'code-line').length""")
+    check("0.4.9: 8,000 sibling code blocks convert in seconds (P2A-037)",
+          "“Pres”" in final and blocks == 8_000 and took < 10, f"took={took:.1f}s blocks={blocks} status={final[:50]!r}")
+    if not final.startswith("Converted"):
+        print("VERDICT: FAIL (the converter is still busy with the P2A-037 page; later checks not run)")
         sys.exit(1)
 
     # Download
