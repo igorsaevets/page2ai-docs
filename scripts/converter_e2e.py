@@ -105,6 +105,21 @@ BANGS.write_text("<html><head><title>Bangs</title></head><body><main><p>"
 PRES = tmp / "pres.html"  # P2A-038, core <= 0.4.8: every <pre> counted the <pre> under three of its ancestors
 PRES.write_text("<html><head><title>Pres</title></head><body><main><div>"
                 + "<pre>code-line</pre>" * 8_000 + "</div></main></body></html>", encoding="utf-8")
+# P2A-039 (core 0.4.9 only): a tab panel kept in a <template> (an Alpine x-if panel) lost its tab and its code.
+# P2A-040 (core <= 0.4.9): a space inside aria-labelledby named the tab with the whole page's text.
+TABS_HTML = (
+    "<html><head><title>Tabs</title></head><body><main><h1>Tabs page</h1><p>Body paragraph one.</p>"
+    "<section><div role=\"tablist\"><button role=\"tab\" aria-controls=\"tab-npm\">npm</button>"
+    "<button role=\"tab\" aria-controls=\"tab-yarn\">yarn</button></div>"
+    "<div id=\"tab-npm\" role=\"tabpanel\"><pre>npm i x</pre></div>"
+    "<template x-if=\"tab === 'yarn'\"><div id=\"tab-yarn\" role=\"tabpanel\"><pre>yarn add x</pre></div></template></section>"
+    "<section><span id=\"la\">Label A</span><span id=\"lb\">Label B</span>"
+    "<div><div role=\"tabpanel\" data-state=\"active\" aria-labelledby=\" la\">panel-a</div>"
+    "<div role=\"tabpanel\" data-state=\"inactive\" aria-labelledby=\"lb \">panel-b</div></div></section>"
+    "<p>Body paragraph two.</p></main></body></html>"
+)
+TABS = tmp / "tabs.html"
+TABS.write_text(TABS_HTML, encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -367,6 +382,19 @@ with sync_playwright() as p:
     if not final.startswith("Converted"):
         print("VERDICT: FAIL (the converter is still busy with the P2A-038 page; later checks not run)")
         sys.exit(1)
+
+    # P2A-039 / P2A-040 (core 0.4.10, T245): see TABS_HTML.
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    page.set_input_files("#p2a-file", str(TABS))
+    page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=60_000)
+    final = page.text_content("#p2a-status") or ""
+    md = page.evaluate("document.querySelector('#p2a-md').value")
+    tab_lines = re.findall(r"^### Tab: .{0,40}", md, flags=re.M)
+    check("0.4.10: a tab panel kept in a <template> keeps its tab and its code (P2A-039)",
+          "“Tabs”" in final and "### Tab: yarn\n" in md and "yarn add x" in md, f"tabs={tab_lines!r}")
+    check("0.4.10: a padded aria-labelledby names the tab by its label, not by the whole page (P2A-040)",
+          "### Tab: Label A\n" in md and "### Tab: Label B\n" in md and not any("Body paragraph" in t for t in tab_lines),
+          f"tabs={tab_lines!r}")
 
     # Download
     convert_file(SAVED, None)
