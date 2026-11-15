@@ -120,6 +120,24 @@ TABS_HTML = (
 )
 TABS = tmp / "tabs.html"
 TABS.write_text(TABS_HTML, encoding="utf-8")
+# P2A-043 (core <= 0.4.10): a tab list inside a panel that names that panel recursed until the stack overflowed, and the
+# whole page came back as «Page2AI extraction failed». P2A-042 (core <= 0.4.10): three tabs naming one panel wrote it
+# three times; 0.4.11 writes it once, under the selected tab.
+TAB_LOOP_HTML = (
+    "<html><head><title>Tab loop</title></head><body><main><h1>Tab loop page</h1><p>Intro paragraph.</p>"
+    "<div role=\"tablist\"><button role=\"tab\" aria-controls=\"p\">A</button>"
+    "<button role=\"tab\" aria-controls=\"q\">B</button></div>"
+    "<div id=\"p\" role=\"tabpanel\"><div role=\"tablist\"><button role=\"tab\" aria-controls=\"p\">C</button>"
+    "<button role=\"tab\" aria-controls=\"q\">D</button></div><p>text-of-p</p></div>"
+    "<div id=\"q\" role=\"tabpanel\"><p>text-of-q</p></div>"
+    "<div role=\"tablist\"><button role=\"tab\" aria-controls=\"s\">Step one</button>"
+    "<button role=\"tab\" aria-selected=\"true\" aria-controls=\"s\">Step two</button>"
+    "<button role=\"tab\" aria-controls=\"s\">Step three</button></div>"
+    "<div id=\"s\" role=\"tabpanel\"><p>shared-terminal-output</p></div>"
+    "<p>Outro paragraph.</p></main></body></html>"
+)
+TAB_LOOP = tmp / "tab_loop.html"
+TAB_LOOP.write_text(TAB_LOOP_HTML, encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -395,6 +413,20 @@ with sync_playwright() as p:
     check("0.4.10: a padded aria-labelledby names the tab by its label, not by the whole page (P2A-040)",
           "### Tab: Label A\n" in md and "### Tab: Label B\n" in md and not any("Body paragraph" in t for t in tab_lines),
           f"tabs={tab_lines!r}")
+
+    # P2A-043 / P2A-042 (core 0.4.11, T252): see TAB_LOOP_HTML.
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    page.set_input_files("#p2a-file", str(TAB_LOOP))
+    page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=60_000)
+    final = page.text_content("#p2a-status") or ""
+    md = page.evaluate("document.querySelector('#p2a-md').value")
+    check("0.4.11: a tab list inside the panel it names converts, each panel once (P2A-043)",
+          "“Tab loop”" in final and "Intro paragraph." in md and "Outro paragraph." in md
+          and md.count("text-of-p") == 1 and md.count("text-of-q") == 1, f"status={final[:50]!r} md={md[:120]!r}")
+    check("0.4.11: a panel three tabs name is written once, under the selected tab (P2A-042)",
+          md.count("shared-terminal-output") == 1 and "### Tab: Step two\n\nshared-terminal-output" in md
+          and "### Tab: Step one\n" in md and "### Tab: Step three\n" in md,
+          f"count={md.count('shared-terminal-output')}")
 
     # Download
     convert_file(SAVED, None)
