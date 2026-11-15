@@ -149,6 +149,17 @@ HIDDEN_TABS_HTML = (
 )
 HIDDEN_TABS = tmp / "hidden_tabs.html"
 HIDDEN_TABS.write_text(HIDDEN_TABS_HTML, encoding="utf-8")
+NESTED_TABS_HTML = (
+    "<html><head><title>Nested tabs</title></head><body><main><h1>Nested tabs page</h1><p>Start paragraph.</p>"
+    "<div hidden><div role=\"tablist\"><button role=\"tab\" aria-controls=\"np\">OuterHidOne</button>"
+    "<button role=\"tab\" aria-controls=\"np2\">OuterHidTwo</button></div></div>"
+    "<div id=\"np\"><p>outer-panel-text</p><div role=\"tablist\"><button role=\"tab\" aria-controls=\"nq\">npm</button>"
+    "<button role=\"tab\" aria-controls=\"nq2\">yarn</button></div><div id=\"nq\"><p>npm-install-text</p></div>"
+    "<div id=\"nq2\"><p>yarn-add-text</p></div></div><div id=\"np2\"><p>second-outer-text</p></div>"
+    "<p>Last paragraph.</p></main></body></html>"
+)
+NESTED_TABS = tmp / "nested_tabs.html"
+NESTED_TABS.write_text(NESTED_TABS_HTML, encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -449,6 +460,15 @@ with sync_playwright() as p:
           and "Neighbour paragraph." in md and "End paragraph." in md, f"md={md[:160]!r}")
     check("0.4.13: aria-selected=\"True\" puts a shared panel under that tab (P2A-049)",
           "### Tab: Picked\n\npicked-output" in md, f"md={md[-160:]!r}")
+
+    # P2A-050 (core 0.4.14, T254): see NESTED_TABS_HTML. 0.4.13 wrote npm-install-text and yarn-add-text twice.
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    page.set_input_files("#p2a-file", str(NESTED_TABS))
+    page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=60_000)
+    md = page.evaluate("document.querySelector('#p2a-md').value")
+    check("0.4.14: a tab widget inside a panel of a hidden tab list is written once, under its headings (P2A-050)",
+          all(md.count(s) == 1 for s in ("outer-panel-text", "npm-install-text", "yarn-add-text", "second-outer-text"))
+          and "### Tab: npm\n\nnpm-install-text" in md and "OuterHid" not in md, f"md={md[:200]!r}")
 
     # Download
     convert_file(SAVED, None)
