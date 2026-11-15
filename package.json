@@ -6,7 +6,7 @@
   "description": "Documentation site for the Page2AI product suite (Chrome extension + @page2ai/core + @page2ai/mcp)",
   "author": "Igor Saevets",
   "license": "MIT",
-  "homepage": "https://igorsaevets.github.io/page2ai-docs/",
+  "homepage": "https://page2ai.net/",
   "repository": {
     "type": "git",
     "url": "https://github.com/igorsaevets/page2ai-docs.git"

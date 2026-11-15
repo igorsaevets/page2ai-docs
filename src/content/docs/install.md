@@ -10,10 +10,10 @@ head:
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "Install Page2AI — Chrome extension, MCP server, npm library",
-        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "url": "https://igorsaevets.github.io/page2ai-docs/install/",
-        "mainEntityOfPage": "https://igorsaevets.github.io/page2ai-docs/install/",
+        "author": { "@id": "https://page2ai.net/about/#person" },
+        "publisher": { "@id": "https://page2ai.net/about/#person" },
+        "url": "https://page2ai.net/install/",
+        "mainEntityOfPage": "https://page2ai.net/install/",
         "proficiencyLevel": "Beginner"
       }
 ---
@@ -23,10 +23,10 @@ Pick the surface that matches the job:
 - **Pasting the page you are reading into a chat** → the [browser extension](#chrome-extension-manifest-v3) (Chrome, [Firefox](#firefox-extension-manifest-v3)).
 - **An agent reading public pages** (Claude Code, Cursor, Codex, any MCP client) → the [MCP server](#mcp-server-agents).
 - **ChatGPT reading a public page** → the [ChatGPT plugin](#chatgpt-plugin).
-- **HTML that you or your agent already loaded** (your own app, a page behind a sign-in, an intranet or tailnet host) → the MCP tool's [`html` argument](/page2ai-docs/mcp/#tool-page_to_markdown), or the [library](#npm-library-node-or-browser-code).
+- **HTML that you or your agent already loaded** (your own app, a page behind a sign-in, an intranet or tailnet host) → the MCP tool's [`html` argument](/mcp/#tool-page_to_markdown), or the [library](#npm-library-node-or-browser-code).
 - **An agent that drives a browser** (Chrome DevTools MCP, Playwright MCP) and wants the extension's Markdown of the page in it → the [agent script](#agent-script-browser-automation).
 
-What each one cannot do: [Which Page2AI do I need?](/page2ai-docs/#which-page2ai-do-i-need)
+What each one cannot do: [Which Page2AI do I need?](/#which-page2ai-do-i-need)
 
 ## Chrome extension (Manifest V3)
 
@@ -101,11 +101,11 @@ npx -y page2ai-mcp --version
 
 It prints the version and exits (`--version` needs 0.6.2 or later). It needs Node.js 20 or later.
 
-Without `--version` the server starts on stdio, prints `[page2ai-mcp] server <version> ready on stdio` to stderr and waits for an MCP client: that is normal, Ctrl+C to exit. The lines about Agent Bridge that follow it are about connecting that server to extension 1.6.0 — ignore them unless you are setting up the Agent Bridge below. To see the server answer a request, run the [`initialize` example](/page2ai-docs/mcp/#verify-locally).
+Without `--version` the server starts on stdio, prints `[page2ai-mcp] server <version> ready on stdio` to stderr and waits for an MCP client: that is normal, Ctrl+C to exit. The lines about Agent Bridge that follow it are about connecting that server to extension 1.6.0 — ignore them unless you are setting up the Agent Bridge below. To see the server answer a request, run the [`initialize` example](/mcp/#verify-locally).
 
-**Agent Bridge (extension 1.6.0).** To let the server read pages through your browser (behind a sign-in, or rendered by JavaScript): open the extension popup, turn on *Agent Bridge*, allow access to websites, and give the server the key the popup shows — full steps and the version table are on the [MCP server page](/page2ai-docs/mcp/#agent-bridge-extension-160). If your store install has no such switch, update the extension first, then set up the bridge; otherwise pass the page's HTML as the tool's `html` argument instead.
+**Agent Bridge (extension 1.6.0).** To let the server read pages through your browser (behind a sign-in, or rendered by JavaScript): open the extension popup, turn on *Agent Bridge*, allow access to websites, and give the server the key the popup shows — full steps and the version table are on the [MCP server page](/mcp/#agent-bridge-extension-160). If your store install has no such switch, update the extension first, then set up the bridge; otherwise pass the page's HTML as the tool's `html` argument instead.
 
-Full details: [MCP server page](/page2ai-docs/mcp/).
+Full details: [MCP server page](/mcp/).
 
 ## ChatGPT (plugin)
 
@@ -117,7 +117,7 @@ Page2AI is in ChatGPT's plugin directory: [Page2AI · Public web page to Markdow
 
 Whether you can install a plugin depends on your plan and, in a workspace, on what its administrators allow ([OpenAI Help: Plugins in ChatGPT](https://help.openai.com/en/articles/20001256)).
 
-The plugin reads **public pages only**. It calls the [hosted endpoint](/page2ai-docs/mcp/#hosted-endpoint-no-install), which fetches the URL from its own server, without your cookies, and runs no page scripts: a page behind a sign-in comes back as its login page, and a page that JavaScript builds in the browser comes back nearly empty. For those, copy the page with the [extension](#chrome-extension-manifest-v3) and paste it into the chat. The plugin takes a URL only and waits at most 20 seconds for a page.
+The plugin reads **public pages only**. It calls the [hosted endpoint](/mcp/#hosted-endpoint-no-install), which fetches the URL from its own server, without your cookies, and runs no page scripts: a page behind a sign-in comes back as its login page, and a page that JavaScript builds in the browser comes back nearly empty. For those, copy the page with the [extension](#chrome-extension-manifest-v3) and paste it into the chat. The plugin takes a URL only and waits at most 20 seconds for a page.
 
 ## Agent script (browser automation)
 
@@ -158,4 +158,4 @@ Node 18.17 or later. Zero external API calls; uses [linkedom](https://github.com
 
 ---
 
-*Written by [Igor Saevets](/page2ai-docs/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*
+*Written by [Igor Saevets](/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*

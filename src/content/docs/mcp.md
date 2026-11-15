@@ -10,10 +10,10 @@ head:
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "Page2AI MCP server — page_to_markdown tool for Claude Desktop, Cursor, Windsurf, Zed",
-        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "url": "https://igorsaevets.github.io/page2ai-docs/mcp/",
-        "mainEntityOfPage": "https://igorsaevets.github.io/page2ai-docs/mcp/",
+        "author": { "@id": "https://page2ai.net/about/#person" },
+        "publisher": { "@id": "https://page2ai.net/about/#person" },
+        "url": "https://page2ai.net/mcp/",
+        "mainEntityOfPage": "https://page2ai.net/mcp/",
         "about": {
           "@type": "SoftwareApplication",
           "name": "@page2ai/mcp",
@@ -36,7 +36,7 @@ https://page2ai.igorsaevets.com/api/mcp
 
 The same conversion as the local server, behind a narrower tool: `url` and `query` (no `html`, no pagination), public pages only, at most 60 s per page, rate-limited per IP. Convenient when you cannot run Node.js on the host (mobile clients, browser-only IDEs, hosted playgrounds).
 
-The earlier address, `https://page2ai-mcp-remote.vercel.app/api/mcp`, keeps answering with the same tool (at most 20 s per page there: its platform stops every request at 30 s). The [Page2AI plugin in ChatGPT](/page2ai-docs/install/#chatgpt-plugin) still calls it.
+The earlier address, `https://page2ai-mcp-remote.vercel.app/api/mcp`, keeps answering with the same tool (at most 20 s per page there: its platform stops every request at 30 s). The [Page2AI plugin in ChatGPT](/install/#chatgpt-plugin) still calls it.
 
 **Privacy trade-off:** URLs sent to the hosted endpoint are fetched *from that server*, so they transit infrastructure operated by the author (a server in New York behind Cloudflare; the earlier address runs on Vercel). Running locally via `npx` keeps everything on your machine — prefer it when you can.
 
@@ -232,4 +232,4 @@ None known. Since 0.2.0 the server runs on the v2 SDK packages, and the move dro
 
 ---
 
-*Written by [Igor Saevets](/page2ai-docs/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets) · [ORCID 0009-0006-8636-1377](https://orcid.org/0009-0006-8636-1377).*
+*Written by [Igor Saevets](/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets) · [ORCID 0009-0006-8636-1377](https://orcid.org/0009-0006-8636-1377).*

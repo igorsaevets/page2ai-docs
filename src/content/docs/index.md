@@ -9,14 +9,14 @@ hero:
     alt: Three Page2AI popup captures on live sites — USCIS EB-1 policy manual, Open WebUI docs, and xAI Grok models page — showing real profile, character counts, and quality ratios returned by the extension.
   actions:
     - text: Install the extension
-      link: /page2ai-docs/install/
+      link: /install/
       icon: right-arrow
     - text: Use the MCP server
-      link: /page2ai-docs/mcp/
+      link: /mcp/
       icon: external
       variant: secondary
     - text: Convert HTML online
-      link: /page2ai-docs/convert/
+      link: /convert/
       variant: minimal
 head:
   - tag: script
@@ -28,20 +28,20 @@ head:
         "@graph": [
           {
             "@type": "WebSite",
-            "@id": "https://igorsaevets.github.io/page2ai-docs/#website",
-            "url": "https://igorsaevets.github.io/page2ai-docs/",
+            "@id": "https://page2ai.net/#website",
+            "url": "https://page2ai.net/",
             "name": "Page2AI",
             "description": "Convert any web page to clean Markdown for AI. Chrome extension, MCP server, and npm library.",
-            "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+            "publisher": { "@id": "https://page2ai.net/about/#person" },
             "inLanguage": "en"
           },
           {
             "@type": "Organization",
-            "@id": "https://igorsaevets.github.io/page2ai-docs/#org",
+            "@id": "https://page2ai.net/#org",
             "name": "Page2AI",
-            "url": "https://igorsaevets.github.io/page2ai-docs/",
-            "founder": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-            "logo": "https://igorsaevets.github.io/page2ai-docs/favicon.svg",
+            "url": "https://page2ai.net/",
+            "founder": { "@id": "https://page2ai.net/about/#person" },
+            "logo": "https://page2ai.net/favicon.svg",
             "sameAs": [
               "https://github.com/igorsaevets/page2ai-extension",
               "https://www.npmjs.com/package/@page2ai/mcp",
@@ -58,13 +58,13 @@ Page2AI is a small product suite for turning live web pages into LLM-ready Markd
 
 | Your job | Use | Start |
 |---|---|---|
-| Paste the page you are reading into ChatGPT, Claude or Gemini | **Browser extension** (Chrome, Firefox) | [Install](/page2ai-docs/install/#chrome-extension-manifest-v3), press `Alt+Shift+M` or click the toolbar icon, then Enter or **Extract Markdown**: the Markdown is on your clipboard |
-| Let an agent (Claude Code, Cursor, Codex, any MCP client) read public web pages as Markdown | **MCP server**, on your machine | `npx -y page2ai-mcp` in the client's MCP config ([setup](/page2ai-docs/mcp/)) |
-| Have ChatGPT read a public page as Markdown | **ChatGPT plugin** | Plugins → Page2AI → Install plugin ([steps](/page2ai-docs/install/#chatgpt-plugin)) |
+| Paste the page you are reading into ChatGPT, Claude or Gemini | **Browser extension** (Chrome, Firefox) | [Install](/install/#chrome-extension-manifest-v3), press `Alt+Shift+M` or click the toolbar icon, then Enter or **Extract Markdown**: the Markdown is on your clipboard |
+| Let an agent (Claude Code, Cursor, Codex, any MCP client) read public web pages as Markdown | **MCP server**, on your machine | `npx -y page2ai-mcp` in the client's MCP config ([setup](/mcp/)) |
+| Have ChatGPT read a public page as Markdown | **ChatGPT plugin** | Plugins → Page2AI → Install plugin ([steps](/install/#chatgpt-plugin)) |
 | Convert a page that you or your agent already loaded: your own app, a page behind a sign-in, an intranet or tailnet host | **MCP tool with `html`**, or the library | Pass the page's HTML as `html` together with its `url`, or call `htmlToMarkdown` in Node |
-| Let an agent read a page behind a sign-in, or one only JavaScript renders, through your own browser | **Agent Bridge**: MCP server + browser extension 1.6.0 | Turn on Agent Bridge in the popup and paste its key into the server ([setup](/page2ai-docs/mcp/#agent-bridge-extension-160)) |
-| Let an agent that drives a browser (Chrome DevTools MCP, Playwright MCP) get the extension's Markdown of the page that browser shows | **Agent script** from the GitHub release | `page2ai-agent.fn.js` or `page2ai-agent.js` ([steps](/page2ai-docs/install/#agent-script-browser-automation)) |
-| Convert HTML in your own code, or save the Markdown to a file | **Library** `@page2ai/core` | `npm i @page2ai/core` ([example](/page2ai-docs/install/#npm-library-node-or-browser-code)) |
+| Let an agent read a page behind a sign-in, or one only JavaScript renders, through your own browser | **Agent Bridge**: MCP server + browser extension 1.6.0 | Turn on Agent Bridge in the popup and paste its key into the server ([setup](/mcp/#agent-bridge-extension-160)) |
+| Let an agent that drives a browser (Chrome DevTools MCP, Playwright MCP) get the extension's Markdown of the page that browser shows | **Agent script** from the GitHub release | `page2ai-agent.fn.js` or `page2ai-agent.js` ([steps](/install/#agent-script-browser-automation)) |
+| Convert HTML in your own code, or save the Markdown to a file | **Library** `@page2ai/core` | `npm i @page2ai/core` ([example](/install/#npm-library-node-or-browser-code)) |
 
 **What the server-side paths cannot do.** The MCP server, the ChatGPT plugin and the library's `fetchAndConvert` fetch without cookies and run no page scripts: a page behind a sign-in comes back as its login page, and a page that builds its content with JavaScript in the browser comes back nearly empty. The extension reads the page as your browser shows it. The MCP server also refuses private, loopback and tailnet addresses; for those, fetch the HTML yourself and pass it in.
 
@@ -82,13 +82,13 @@ Page2AI is a small product suite for turning live web pages into LLM-ready Markd
 
 ## Zero data collection
 
-Page2AI does not send page contents anywhere. The extension has `activeTab`, `scripting`, `clipboardWrite`, and `storage` permissions and no `host_permissions`. The MCP server and library make no network calls beyond the URL you ask them to fetch, and they enforce SSRF guards against private IP ranges and non-HTTP schemes. The hosted endpoint behind the ChatGPT plugin fetches the URL from its own server: see its [privacy trade-off](/page2ai-docs/mcp/#hosted-endpoint-no-install).
+Page2AI does not send page contents anywhere. The extension has `activeTab`, `scripting`, `clipboardWrite`, and `storage` permissions and no `host_permissions`. The MCP server and library make no network calls beyond the URL you ask them to fetch, and they enforce SSRF guards against private IP ranges and non-HTTP schemes. The hosted endpoint behind the ChatGPT plugin fetches the URL from its own server: see its [privacy trade-off](/mcp/#hosted-endpoint-no-install).
 
-See [Privacy](/page2ai-docs/privacy/) for details.
+See [Privacy](/privacy/) for details.
 
 ## Related
 
-- Comparisons: [how Page2AI compares to other converters](/page2ai-docs/comparison/) · [Webpage to Markdown Chrome extension: 6 options compared](/page2ai-docs/webpage-to-markdown-chrome-extension/)
+- Comparisons: [how Page2AI compares to other converters](/comparison/) · [Webpage to Markdown Chrome extension: 6 options compared](/webpage-to-markdown-chrome-extension/)
 - Source: [github.com/igorsaevets/page2ai-extension](https://github.com/igorsaevets/page2ai-extension)
 - Software Heritage archive: `swh:1:snp:05123c51ef9e7c0aeb06f42b1263c07a8d26999a`
 - MCP Registry: [io.github.igorsaevets/page2ai-mcp](https://registry.modelcontextprotocol.io/v0/servers?search=page2ai)
@@ -96,4 +96,4 @@ See [Privacy](/page2ai-docs/privacy/) for details.
 
 ## Author
 
-Page2AI is written and maintained by **[Igor Saevets](/page2ai-docs/about/)** — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets) · [ORCID 0009-0006-8636-1377](https://orcid.org/0009-0006-8636-1377).
+Page2AI is written and maintained by **[Igor Saevets](/about/)** — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets) · [ORCID 0009-0006-8636-1377](https://orcid.org/0009-0006-8636-1377).

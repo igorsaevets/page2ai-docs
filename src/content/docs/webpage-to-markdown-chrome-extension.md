@@ -11,10 +11,10 @@ head:
         "@type": "TechArticle",
         "headline": "Webpage to Markdown Chrome extension — 6 options compared (2026)",
         "datePublished": "2026-08-31",
-        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "url": "https://igorsaevets.github.io/page2ai-docs/webpage-to-markdown-chrome-extension/",
-        "mainEntityOfPage": "https://igorsaevets.github.io/page2ai-docs/webpage-to-markdown-chrome-extension/",
+        "author": { "@id": "https://page2ai.net/about/#person" },
+        "publisher": { "@id": "https://page2ai.net/about/#person" },
+        "url": "https://page2ai.net/webpage-to-markdown-chrome-extension/",
+        "mainEntityOfPage": "https://page2ai.net/webpage-to-markdown-chrome-extension/",
         "about": [
           { "@type": "Thing", "name": "Chrome extension" },
           { "@type": "Thing", "name": "Markdown converter" },
@@ -102,13 +102,13 @@ The matrix below is what a first-time user actually cares about. It is derived f
 - **You just want the simplest "click, get Markdown" experience** — either "Webpage to Markdown" or "HTML to Markdown" on CWS covers it.
 - **You are migrating from MarkDownload on Chrome** — the closest replacement for your feature set depends on how you used it. If you used YAML frontmatter → Page2AI supports full OG/JSON-LD frontmatter. If you used Obsidian-specific templates → try the Obsidian Web Clipper. If you used the plain default flow → Page2AI or LLMFeeder.
 - **Your target is an Obsidian vault, not a chat window** — Obsidian Web Clipper.
-- **You are wiring this into an AI agent (Claude Desktop, Cursor, Windsurf), not a human copy-paste flow** — none of the extensions above solve that. Page2AI ships a companion MCP server (`npx -y page2ai-mcp`) so an agent can convert pages itself. See the [MCP server page](/page2ai-docs/mcp/) for setup.
+- **You are wiring this into an AI agent (Claude Desktop, Cursor, Windsurf), not a human copy-paste flow** — none of the extensions above solve that. Page2AI ships a companion MCP server (`npx -y page2ai-mcp`) so an agent can convert pages itself. See the [MCP server page](/mcp/) for setup.
 
 ## Install Page2AI
 
 - **Chrome / Edge / Brave / Opera:** [Chrome Web Store](https://chromewebstore.google.com/detail/dlpaaijcnbbmlfeohlphjpnbbcnomnno)
 - **Firefox:** [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/page2ai-webpage-to-markdown/)
-- **MCP server (agents):** add `npx -y page2ai-mcp` to your MCP client (Claude Code, Claude Desktop, Cursor and others). Details: [MCP server](/page2ai-docs/mcp/).
+- **MCP server (agents):** add `npx -y page2ai-mcp` to your MCP client (Claude Code, Claude Desktop, Cursor and others). Details: [MCP server](/mcp/).
 
 No account, no API key, no telemetry. Source on [GitHub](https://github.com/igorsaevets/page2ai-extension) — MIT-licensed.
 

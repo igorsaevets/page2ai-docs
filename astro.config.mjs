@@ -5,8 +5,10 @@ import starlightLlmsTxt from 'starlight-llms-txt';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://igorsaevets.github.io',
-  base: '/page2ai-docs',
+  // Own domain since 2026-11-15: GitHub Pages custom domain page2ai.net, served at the host root, so no `base`.
+  // GitHub answers the old project-site URLs (igorsaevets.github.io/page2ai-docs/<path>) with a 301 to
+  // https://page2ai.net/<path>; keep every page at its path so those redirects land on a page.
+  site: 'https://page2ai.net',
   integrations: [
     starlight({
       title: 'Page2AI',

@@ -1,7 +1,7 @@
 # Support
 
 This repository holds the documentation site for the Page2AI suite:
-https://igorsaevets.github.io/page2ai-docs/
+https://page2ai.net/
 
 - Content errors or broken pages on the site: open an issue here.
 - Browser extension problems: https://github.com/igorsaevets/page2ai-extension/issues
