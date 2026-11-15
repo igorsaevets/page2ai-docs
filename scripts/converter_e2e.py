@@ -138,6 +138,17 @@ TAB_LOOP_HTML = (
 )
 TAB_LOOP = tmp / "tab_loop.html"
 TAB_LOOP.write_text(TAB_LOOP_HTML, encoding="utf-8")
+HIDDEN_TABS_HTML = (
+    "<html><head><title>Hidden tabs</title></head><body><main><h1>Hidden tabs page</h1><p>Neighbour paragraph.</p>"
+    "<div hidden><div role=\"tablist\"><button role=\"tab\" aria-controls=\"h1p\">HiddenLabelOne</button>"
+    "<button role=\"tab\" aria-controls=\"h2p\">HiddenLabelTwo</button></div></div>"
+    "<div id=\"h1p\" role=\"tabpanel\"><p>visible-panel-one</p></div><div id=\"h2p\" role=\"tabpanel\"><p>visible-panel-two</p></div>"
+    "<div role=\"tablist\"><button role=\"tab\" aria-controls=\"sh\">Plain</button>"
+    "<button role=\"tab\" aria-selected=\"True\" aria-controls=\"sh\">Picked</button></div>"
+    "<div id=\"sh\" role=\"tabpanel\"><p>picked-output</p></div><p>End paragraph.</p></main></body></html>"
+)
+HIDDEN_TABS = tmp / "hidden_tabs.html"
+HIDDEN_TABS.write_text(HIDDEN_TABS_HTML, encoding="utf-8")
 FIVE_MB = tmp / "five.html"
 FIVE_MB.write_text("<p>" + "b" * (5 * 1024 * 1024) + "</p>", encoding="utf-8")
 FAKE_CRASH_WORKER = (
@@ -427,6 +438,17 @@ with sync_playwright() as p:
           md.count("shared-terminal-output") == 1 and "### Tab: Step two\n\nshared-terminal-output" in md
           and "### Tab: Step one\n" in md and "### Tab: Step three\n" in md,
           f"count={md.count('shared-terminal-output')}")
+
+    # P2A-047 / P2A-049 (core 0.4.13, T253): see HIDDEN_TABS_HTML.
+    page.evaluate("document.querySelector('#p2a-status').textContent = ''")
+    page.set_input_files("#p2a-file", str(HIDDEN_TABS))
+    page.wait_for_function("document.querySelector('#p2a-status').textContent.startsWith('Converted')", timeout=60_000)
+    md = page.evaluate("document.querySelector('#p2a-md').value")
+    check("0.4.13: the panels of a hidden tab list are written, without its labels (P2A-047)",
+          md.count("visible-panel-one") == 1 and md.count("visible-panel-two") == 1 and "HiddenLabel" not in md
+          and "Neighbour paragraph." in md and "End paragraph." in md, f"md={md[:160]!r}")
+    check("0.4.13: aria-selected=\"True\" puts a shared panel under that tab (P2A-049)",
+          "### Tab: Picked\n\npicked-output" in md, f"md={md[-160:]!r}")
 
     # Download
     convert_file(SAVED, None)
