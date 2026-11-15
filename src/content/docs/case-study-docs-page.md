@@ -1,11 +1,11 @@
 ---
-title: 'Web-to-Markdown benchmark: 12 tools on one docs page'
-description: 'Single-page benchmark of 12 web-to-Markdown tools for LLMs and AI agents (Page2AI, Firecrawl, Jina Reader, Tavily, Exa, Nimble, Parallel, crawl4ai, scrapling, trafilatura), scored on text, noise and structure. Measured 2026-11-13.'
+title: 'Web-to-Markdown benchmark: 16 tools on one docs page'
+description: 'Single-page benchmark of 16 web-to-Markdown and browser-fetcher tools for LLMs and AI agents (Page2AI, Firecrawl, Jina Reader, Tavily, Exa, Nimble, Parallel, crawl4ai, scrapling 0.4 and 0.5, trafilatura, Claude in Chrome, Playwright, Playwright Extension), scored on text, noise and structure. Measured 2026-11-13 and 2026-11-15.'
 head:
   - tag: meta
     attrs:
       name: keywords
-      content: 'web to markdown, webpage to markdown, html to markdown, url to markdown, markdown converter benchmark, web scraping benchmark, LLM-ready markdown, markdown for LLM, AI agents, MCP server, MCP fetch tool, context window, token efficiency, RAG ingestion, Firecrawl alternative, Jina Reader alternative, Firecrawl vs Jina Reader, Tavily extract, Exa web fetch, Nimble extract, Parallel web fetch, crawl4ai, scrapling, trafilatura, Claude Code'
+      content: 'web to markdown, webpage to markdown, html to markdown, url to markdown, markdown converter benchmark, web scraping benchmark, LLM-ready markdown, markdown for LLM, AI agents, MCP server, MCP fetch tool, context window, token efficiency, RAG ingestion, Firecrawl alternative, Jina Reader alternative, Firecrawl vs Jina Reader, Tavily extract, Exa web fetch, Nimble extract, Parallel web fetch, crawl4ai, scrapling, scrapling 0.5, trafilatura, Playwright MCP, Playwright Extension, Claude in Chrome, browser automation fetcher, accessibility tree, innerText, agent fallback, Claude Code'
   - tag: script
     attrs:
       type: application/ld+json
@@ -13,15 +13,16 @@ head:
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Web-to-Markdown benchmark: 12 tools on one docs page",
-        "description": "Single-page benchmark of 12 web-to-Markdown tools for LLMs and AI agents, scored on text, noise and structure against the site's own Markdown.",
-        "keywords": "web to markdown, html to markdown, markdown converter benchmark, web scraping benchmark, LLM-ready markdown, AI agents, MCP fetch tool, context window, token efficiency, Firecrawl alternative, Jina Reader alternative",
+        "headline": "Web-to-Markdown benchmark: 16 tools on one docs page",
+        "description": "Single-page benchmark of 16 web-to-Markdown and browser-fetcher tools for LLMs and AI agents, scored on text, noise and structure against the site's own Markdown.",
+        "keywords": "web to markdown, html to markdown, markdown converter benchmark, web scraping benchmark, LLM-ready markdown, AI agents, MCP fetch tool, context window, token efficiency, Firecrawl alternative, Jina Reader alternative, Playwright MCP, Claude in Chrome, scrapling 0.5",
         "datePublished": "2026-11-13",
-        "dateModified": "2026-11-13",
+        "dateModified": "2026-11-15",
         "author": { "@type": "Person", "name": "Igor Saevets", "url": "https://igorsaevets.github.io/page2ai-docs/about/" },
         "about": [
           { "@type": "Thing", "name": "HTML to Markdown conversion" },
-          { "@type": "Thing", "name": "Web scraping for LLMs and AI agents" }
+          { "@type": "Thing", "name": "Web scraping for LLMs and AI agents" },
+          { "@type": "Thing", "name": "Browser automation for AI agents" }
         ],
         "mentions": [
           { "@type": "SoftwareApplication", "name": "Page2AI", "url": "https://igorsaevets.github.io/page2ai-docs/" },
@@ -33,7 +34,9 @@ head:
           { "@type": "SoftwareApplication", "name": "Parallel" },
           { "@type": "SoftwareApplication", "name": "crawl4ai" },
           { "@type": "SoftwareApplication", "name": "scrapling" },
-          { "@type": "SoftwareApplication", "name": "trafilatura" }
+          { "@type": "SoftwareApplication", "name": "trafilatura" },
+          { "@type": "SoftwareApplication", "name": "Playwright MCP" },
+          { "@type": "SoftwareApplication", "name": "Claude in Chrome" }
         ]
       }
   - tag: style
@@ -46,16 +49,17 @@ head:
       }
 ---
 
-An AI agent or LLM that reads a web page gets whatever its web-to-Markdown tool returns. On 2026-11-13 we sent one page through 12 tools and measured what came back. We checked how much of the page's text arrived, how much else arrived with it, and whether headings, code blocks and tables survived as Markdown.
+An AI agent or LLM that reads a web page gets whatever its web-to-Markdown tool returns. On 2026-11-13 we sent one page through 12 tools and measured what came back; on 2026-11-15 we added four more. Among them, a newer release in the scrapling line (now scrapling 0.5), and three browser-automation tools that an agent reaches for when a converter fails: Claude in Chrome, Playwright MCP, and the Playwright Extension. We checked how much of the page's text arrived, how much else arrived with it, and whether headings, code blocks and tables survived as Markdown.
 
 **Disclosure:** Page2AI is our project. The page, the calls and the scoring were the same for every tool.
 
 ## Key findings
 
 - **Highest-scoring converter:** Page2AI, 97 of 100. It delivered 98.9% of the text with 1.9% extra, and every heading, code block and table.
-- **Closest competitor:** Nimble, 63. Its text, code and tables were complete, but its headings arrived as plain lines.
+- **Closest competitor:** scrapling 0.5, 93. Its successor to scrapling 0.4.12 (which scores 21) is a different tool: full Markdown structure, text and tables; only the site's left-nav survives into its output.
 - **Most noise:** Firecrawl, Tavily, Jina Reader and the scrapling and crawl4ai libraries returned six to seven times the page's length. About 80% of it was the site's embedded configuration: context window an LLM pays for and does not need.
 - **No conversion at all:** Exa, Parallel and the MCP reference fetch server received the site's own Markdown copy instead of converting the HTML.
+- **Browser fetchers aren't converters.** Claude in Chrome, Playwright MCP and the Playwright Extension recover 87% to 99% of the article's words but return plain text or an accessibility tree, not Markdown. They are the fallback an agent uses when a converter can't open the page — on this page every converter works, so their value here is measured, not demonstrated.
 
 ## The page and the answer key
 
@@ -77,6 +81,7 @@ Five numbers per output, and a score built from them. **↑ means higher is bett
 | Tool | Called as | Characters | Text ↑ | Extra ↓ | Headings ↑ | Code ↑ | Tables ↑ | Score ↑ |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | **Page2AI** 0.10.1 | MCP, whole page ¹ | 50,114 | 98.9% | 1.9% | 100% | 100% | 100% | **97** |
+| scrapling 0.5 ⁴ | MCP, `make_request` with defaults | 47,131 | 98.9% | 5.5% | 100% | 100% | 100% | **93** |
 | Nimble | MCP, Markdown | 55,250 | 99.0% | 5.3% | 3% | 100% | 100% | 63 |
 | scrapling 0.4.12 | MCP, defaults | 26,551 | 63.6% | 2.5% | 100% | 0% | 0% | 21 |
 | trafilatura 2.2.0 | Python library ³ | 22,762 | 58.4% | 1.6% | 97% | 0% | 0% | 19 |
@@ -96,11 +101,14 @@ Ties are ordered by the unrounded score.
 
 ³ trafilatura with tables, links and formatting turned on.
 
+⁴ scrapling 0.5 is the next release line after 0.4.12; it ships a different extractor and a different MCP server (`scrapling-05`) that exposes `make_request`, `browser_fetch_once` and `browser_extract` instead of `get`. Measured 2026-11-15.
+
 **The exact calls:**
 
 - **Page2AI:** `page_to_markdown` with the URL.
+- **scrapling 0.5:** the MCP tool `make_request` with the URL; `extraction_type: "markdown"` is the default.
 - **Nimble:** `nimble_extract` with `output_format: "markdown"`.
-- **scrapling:**
+- **scrapling 0.4.12:**
   - the MCP tool `get` with the URL;
   - the library's `scrapling extract get`.
 - **trafilatura:** `extract(…, output_format="markdown", include_tables=True, include_links=True, include_formatting=True)`.
@@ -130,9 +138,28 @@ The Markdown source has syntax that a converted page does not have:
 
 Parallel and the fetch server returned all three, and Exa returned the callouts. The site serves this Markdown to such requests, so for these tools the site did the conversion. WebFetch passes the page to a model and returns the model's answer, so it has no raw output to score.
 
+## Tools that fetch, but don't return Markdown
+
+A browser-automation tool is what an agent reaches for when a Markdown converter can't open the page: Cloudflare challenges, single-page applications, bot-detection. Its native output is not Markdown — it is plain text, an accessibility tree, or raw HTML — so it is not scored on the structure columns. We report what each tool returns, how large that is, and how much of the article's words come through. On this page every converter works, so these tools' value is measured here, not demonstrated.
+
+| Tool | Native output | Characters | Text ↑ | Extra ↓ |
+|---|---|---:|---:|---:|
+| Claude in Chrome, `get_page_text` | plain text, article only ⁵ | 35,245 | 98.9% | 2.0% |
+| Playwright Extension, `browser_evaluate` + `innerText` | plain text, whole body | 37,438 | 99.2% | 5.2% |
+| Playwright MCP (headless), `browser_evaluate` + `innerText` | plain text, whole body | 37,438 | 99.2% | 5.2% |
+| Claude in Chrome, `read_page` | accessibility tree with `ref_X` anchors | 85,949 | 86.8% | 51.9% |
+| Playwright MCP (headless), `browser_snapshot` | accessibility YAML with bounding boxes | 160,264 | 99.2% | 61.5% |
+| Playwright Extension, `browser_snapshot` | accessibility YAML with bounding boxes | 164,129 | 99.2% | 61.5% |
+
+⁵ Claude in Chrome's `get_page_text` prioritizes the `<main>` element and drops navigation and footer — the lowest noise of any fetcher here. Its `read_page` is the opposite: an accessibility tree with every element wrapped in `[ref_X]` anchors, so the exact phrase `"claude code ignores them at load time"` does not appear as a contiguous string there, even though its words are present.
+
+**What these numbers say.** Plain-text output recovers the article's words (87% to 99%) without any of its Markdown structure. An agent that reads them downstream has to convert them. The two Playwright surfaces (headless MCP and the Chrome extension) return the same `innerText` on this static page; their accessibility snapshots differ by about 4 KB of layout noise. These tools' real test is a page that converters cannot open at all, which is a separate benchmark.
+
 ## What the numbers say
 
-- **Nimble came closest to Page2AI.** It delivered nearly all the text, little extra and every code block and table, but its headings arrive as plain lines.
+- **scrapling 0.5 came closest to Page2AI.** It delivered nearly all the text with every heading, code block and table; only the site's left-nav survives into its output, which is why its noise is a few points higher than Page2AI's. Score 93 against Page2AI's 97.
+- **The 0.4 to 0.5 jump in scrapling is a different tool.** On the same page, scrapling 0.4.12's MCP server scores 21 and 0.5's scores 93. The 0.5 release ships a new MCP server (`scrapling-05`) with new tools (`make_request`, `browser_fetch_once`, `browser_extract`); the two share a name and a library lineage, not an output shape.
+- **Nimble is still the closest non-scrapling.** It delivered nearly all the text, little extra and every code block and table, but its headings arrive as plain lines.
 - **Extra text costs as much as missing text.** Five of the converters delivered nearly the whole page, and then six to seven times its length in total. About 80% of each of those outputs is one line of the site's embedded configuration (`{"docsConfig":{"theme":"mint",…`, 225,000 to 241,000 characters), and navigation adds more. An agent pays for every character it reads.
 - **Headings are where converters differ.** Jina, Nimble and the crawl4ai library wrote the page's headings as plain lines, so the agent loses the outline.
 - **Defaults decide what an agent gets.** Through their MCP servers, crawl4ai returned the first 20,000 characters of the page, and scrapling returned a short main-content extract without code blocks or tables. The same libraries called directly returned everything.
@@ -149,7 +176,10 @@ Both defects are logged as open issues.
 ## Frequently asked questions
 
 **Which web-to-Markdown tool gives an LLM the cleanest Markdown?**
-On this page, Page2AI (score 97), then Nimble (63). Every other converter either lost part of the page or added several times its length in navigation and embedded code. The result holds for one documentation page; other pages can rank differently.
+On this page, Page2AI (score 97), then scrapling 0.5 (93), then Nimble (63). Every other converter either lost part of the page or added several times its length in navigation and embedded code. The result holds for one documentation page; other pages can rank differently.
+
+**What if a Markdown converter can't open the page?**
+Agents usually fall back to a browser-automation tool — Claude in Chrome, Playwright MCP or the Playwright Extension — and read the page's accessibility tree or its `innerText`. That output is not Markdown, and a page like this one does not stress the fallback: every converter opens it. A page under Cloudflare or served by a single-page application is a different benchmark, and this one does not run it.
 
 **Why does extra text matter for AI agents?**
 An agent reads the whole tool result into its context window. On this page, about 80% extra turned a 42,591-character page into 267,000 to 288,000 characters. That is more tokens and less room for the task. In Claude Code these results were too large to show inline, so they were saved to a file instead.
@@ -162,9 +192,11 @@ Fetch the answer key with `curl https://code.claude.com/docs/en/plugins-referenc
 
 ## Limits of this test
 
-- **One page, one day.** Hosted services change their extraction without notice, so rerun before you rely on a number.
+- **One page, one day.** Hosted services change their extraction without notice, so rerun before you rely on a number. The converters were measured 2026-11-13; scrapling 0.5 and the fetchers were measured 2026-11-15 on the same page URL.
 - **Default settings.** Most of these tools can be tuned with CSS selectors, content filters or higher limits. We measured what a plain call returns.
 - **What the scores miss.** The key is the author's Markdown, not a judgment of what an agent needs. Word overlap does not check reading order or link targets.
+- **The fetchers' real test is a page converters can't open.** Cloudflare challenges, single-page applications, bot-detection: a browser-automation tool is the way in. This page does not exercise that, so Claude in Chrome, Playwright MCP and the Playwright Extension are measured here on content every converter also handles. A separate anti-bot benchmark would rank them differently.
+- **Stealth browsers are not included.** Tools like CloakBrowser or scrapling's stealth-browser mode need a paid residential proxy and a per-workflow configuration, so they are left out of a single-page benchmark. For a page that blocks ordinary fetchers, a stealth browser is often the one way in.
 - **One page, not a multi-site benchmark.** For the multi-site benchmark, see [page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark).
 
 We do not republish the outputs, since each one is a copy of Anthropic's page.
