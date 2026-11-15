@@ -38,7 +38,7 @@ head:
           { "@type": "SoftwareApplication", "name": "Playwright MCP" },
           { "@type": "SoftwareApplication", "name": "Claude in Chrome" },
           { "@type": "SoftwareApplication", "name": "CloakBrowser" },
-          { "@type": "SoftwareApplication", "name": "Page2AI hosted", "url": "https://page2ai-mcp-remote.vercel.app/api/mcp" }
+          { "@type": "SoftwareApplication", "name": "Page2AI hosted", "url": "https://page2ai.igorsaevets.com/api/mcp" }
         ]
       }
   - tag: style
@@ -58,7 +58,7 @@ An AI agent or LLM that reads a web page gets whatever its web-to-Markdown tool 
 ## Key findings
 
 - **Highest-scoring converter:** CloakBrowser, 99. A stealth Chromium build (a patched Chromium that passes Cloudflare Turnstile, reCAPTCHA v3 and 30+ bot detectors) that strips navigation, footer and the "On this page" list more aggressively than any HTML-to-Markdown converter here: 98.8% of the text with 0.2% extra, every heading, code block and table. Device-side only, and heavy: the full flow (launch + navigate + read) took **~18 s** on this page; a per-page follow-up call after the Chromium is live is **~13 s**. Best fit for sites that other converters cannot open at all (Cloudflare, SPAs) — not for a converter on a hot path.
-- **Closest competitor:** Page2AI, 97. Delivered 98.9% of the text with 1.9% extra, and every heading, code block and table. Two surfaces at the same score: a Chrome extension + local MCP server (`@page2ai/mcp`), measured at **~0.4 s/page** end-to-end on this laptop; and a hosted Remote MCP at `page2ai-mcp-remote.vercel.app` (public domain `page2ai.com` is parked and will point here), measured at **~0.7 s/page** after session init. The local surface is **40–45× faster** than CloakBrowser; the hosted one is the only Page2AI surface an agent on `claude.ai` can reach.
+- **Closest competitor:** Page2AI, 97. Delivered 98.9% of the text with 1.9% extra, and every heading, code block and table. Two surfaces at the same score: a Chrome extension + local MCP server (`@page2ai/mcp`), measured at **~0.4 s/page** end-to-end on this laptop; and a hosted Remote MCP at `page2ai.igorsaevets.com`, measured at **~0.6 s/page** after session init. The local surface is **40–45× faster** than CloakBrowser; the hosted one is the only Page2AI surface an agent on `claude.ai` can reach.
 - **Third score:** scrapling 0.5, 93. The successor to scrapling 0.4.12 (which scored 21) is a different tool: full Markdown structure, text and tables; only the site's left-nav survives into its output.
 - **Most noise:** Firecrawl, Tavily, Jina Reader and the scrapling 0.4 / crawl4ai libraries returned six to seven times the page's length. About 80% of it was the site's embedded configuration: context window an LLM pays for and does not need.
 - **No conversion at all:** Exa, Parallel and the MCP reference fetch server received the site's own Markdown copy instead of converting the HTML.
@@ -88,7 +88,7 @@ Five numbers per output, a score built from them, and two cross-cutting dimensio
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | **CloakBrowser** ⁷ (MCP, `cloak_read_page`) | Device | 44,052 | 98.8% | 0.2% | 100% | 100% | 100% | **99** | ~18 s ⁸ |
 | **Page2AI** 0.10.1, local (MCP) ¹ | Device | 50,114 | 98.9% | 1.9% | 100% | 100% | 100% | **97** | ~0.4 s |
-| **Page2AI** 0.10.1, hosted (Remote MCP) ⁶ | Cloud | 48,095 | 98.9% | 2.0% | 100% | 100% | 100% | **97** | ~0.7 s |
+| **Page2AI** 0.10.1, hosted (Remote MCP) ⁶ | Cloud | 48,095 | 98.9% | 2.0% | 100% | 100% | 100% | **97** | ~0.6 s |
 | scrapling 0.5 ⁴ (MCP, `make_request`) | Device | 47,131 | 98.9% | 5.5% | 100% | 100% | 100% | **93** | ~6 s ⁸ |
 | Nimble (MCP, Markdown) | Cloud | 55,250 | 99.0% | 5.3% | 3% | 100% | 100% | 63 | ~16 s ⁸ |
 | scrapling 0.4.12 (MCP, defaults) | Device | 26,551 | 63.6% | 2.5% | 100% | 0% | 0% | 21 | ~4.5 s ⁸ |
@@ -111,7 +111,7 @@ Ties are ordered by the unrounded score, then by Time ascending.
 
 ⁴ scrapling 0.5 is the next release line after 0.4.12; it ships a different extractor and a different MCP server (`scrapling-05`) that exposes `make_request`, `browser_fetch_once` and `browser_extract` instead of `get`. Measured 2026-11-15.
 
-⁶ The hosted Page2AI server (`page2ai-mcp-remote`) is a Remote MCP endpoint at `https://page2ai-mcp-remote.vercel.app/api/mcp`; the public domain `page2ai.com` is parked and will point here. It uses the same `page_to_markdown` tool as the local MCP and the same `@page2ai/core` engine (0.4.3). A cloud session on `claude.ai` can call this surface; the local one is unreachable from there. Latency above is one `tools/call` after the initialize handshake; a first call that includes the handshake took ~3 s.
+⁶ The hosted Page2AI server (`page2ai-mcp-remote`) is a Remote MCP endpoint at `https://page2ai.igorsaevets.com/api/mcp`. It uses the same `page_to_markdown` tool as the local MCP and the same `@page2ai/core` engine (0.4.3). A cloud session on `claude.ai` can call this surface; the local one is unreachable from there. Latency above is the median of three `tools/call` after the initialize handshake (0.52–0.75 s); a first call that includes the handshake took ~1.2 s. The older address `https://page2ai-mcp-remote.vercel.app/api/mcp` runs the same server and returned the same text (median 0.57 s).
 
 ⁷ CloakBrowser is a source-patched Chromium that bypasses Cloudflare Turnstile, reCAPTCHA v3 (0.9 score), FingerprintJS and 30+ bot detectors. It runs locally through its `cloak_*` MCP tools. The score and latency here are for one page with no proxy and no bot-check — a production run on a protected page adds a residential proxy and raises the per-page cost. The time is the one-page flow: launch (~5 s) + navigate (~9 s with humanize on) + read (~4 s). A second page on a warm browser skips launch, so the per-page cost falls to ~13 s.
 
@@ -120,7 +120,7 @@ Ties are ordered by the unrounded score, then by Time ascending.
 **The exact calls:**
 
 - **Page2AI (local):** the `@page2ai/mcp` server's `page_to_markdown` with the URL; or, in-process, `@page2ai/core`'s `fetchAndConvert(url)`.
-- **Page2AI (hosted):** POST JSON-RPC to `https://page2ai-mcp-remote.vercel.app/api/mcp`; after `initialize` and `notifications/initialized`, a `tools/call` of `page_to_markdown` with the URL.
+- **Page2AI (hosted):** POST JSON-RPC to `https://page2ai.igorsaevets.com/api/mcp`; after `initialize` and `notifications/initialized`, a `tools/call` of `page_to_markdown` with the URL.
 - **CloakBrowser:** `cloak_launch(headless=true, humanize=true, proxy=null, geoip=false)` → `cloak_navigate(page_id, URL)` → `cloak_read_page(page_id, max_length=50000)` → `cloak_close`.
 - **scrapling 0.5:** the MCP tool `make_request` with the URL; `extraction_type: "markdown"` is the default.
 - **Nimble:** `nimble_extract` with `output_format: "markdown"`.
@@ -174,7 +174,7 @@ A browser-automation tool is what an agent reaches for when a Markdown converter
 ## What the numbers say
 
 - **CloakBrowser wins the noise race, Page2AI wins the production fit.** CloakBrowser's 99 beats Page2AI's 97 by two points because its reader-mode extractor trims the "On this page" list, "Was this page helpful?" and the prev/next links that Page2AI keeps. On this page the gap is 0.2% vs 1.9% in noise. But CloakBrowser needs a local stealth Chromium per session: **~18 s end-to-end** on a fresh launch versus **~0.4 s** for Page2AI local — a 40–45× gap. For a converter on an agent's hot path, Page2AI is the pick; for a page that refuses ordinary fetchers, CloakBrowser is.
-- **Page2AI's two surfaces tied at 97.** Local (`@page2ai/mcp`, Device) and hosted (`page2ai-mcp-remote`, Cloud) both run the same `@page2ai/core` engine and return the same scores — the local one is ~0.4 s/page, the hosted one ~0.7 s/page after session init. The hosted surface is the one an agent on `claude.ai` can call; the local one is not reachable from there.
+- **Page2AI's two surfaces tied at 97.** Local (`@page2ai/mcp`, Device) and hosted (`page2ai-mcp-remote`, Cloud) both run the same `@page2ai/core` engine and return the same scores — the local one is ~0.4 s/page, the hosted one ~0.6 s/page after session init. The hosted surface is the one an agent on `claude.ai` can call; the local one is not reachable from there.
 - **scrapling 0.5 came third.** It delivered nearly all the text with every heading, code block and table; only the site's left-nav survives into its output, which is why its noise is a few points higher than Page2AI's. Score 93 against Page2AI's 97.
 - **The 0.4 to 0.5 jump in scrapling is a different tool.** On the same page, scrapling 0.4.12's MCP server scores 21 and 0.5's scores 93. The 0.5 release (October 2026) ships a new MCP server (`scrapling-05`) with new tools (`make_request`, `browser_fetch_once`, `browser_extract`); the two share a name and a library lineage, not an output shape.
 - **Nimble is still the closest non-scrapling converter on text.** It delivered nearly all the text, little extra and every code block and table, but its headings arrive as plain lines — and it was the slowest converter on this page (~16 s via MCP shim; the Nimble server itself still runs 10+ s because it extracts the full page with no filter).
@@ -198,7 +198,7 @@ Both defects are logged as open issues.
 On this page, CloakBrowser (score 99), then Page2AI (97, local and hosted tied), then scrapling 0.5 (93), then Nimble (63). Every other converter either lost part of the page or added several times its length in navigation and embedded code. The result holds for one documentation page; other pages can rank differently.
 
 **Which one should I actually use?**
-Depends on where your agent runs and how cost-sensitive it is. An agent on `claude.ai` can only call Cloud tools: Page2AI hosted (Remote MCP, ~0.7 s, score 97) is the top choice there. A Claude Desktop or Claude Code agent reaches Device tools too: Page2AI local (~0.4 s, score 97) is the production pick, and CloakBrowser (~18 s first page, ~13 s per follow-up, score 99) is reserved for pages ordinary converters can't open — Cloudflare challenges, SPAs, aggressive bot-detection.
+Depends on where your agent runs and how cost-sensitive it is. An agent on `claude.ai` can only call Cloud tools: Page2AI hosted (Remote MCP, ~0.6 s, score 97) is the top choice there. A Claude Desktop or Claude Code agent reaches Device tools too: Page2AI local (~0.4 s, score 97) is the production pick, and CloakBrowser (~18 s first page, ~13 s per follow-up, score 99) is reserved for pages ordinary converters can't open — Cloudflare challenges, SPAs, aggressive bot-detection.
 
 **What if a Markdown converter can't open the page?**
 Two layered fallbacks. For soft blocks (Cloudflare Turnstile, reCAPTCHA v3, fingerprint checks), a stealth browser like **CloakBrowser** passes them locally and returns Markdown; add a residential proxy for geo-fencing or IP-reputation challenges. For pages that only render after JavaScript, agents fall back to a browser-automation tool — Claude in Chrome, Playwright MCP or the Playwright Extension — and read the page's accessibility tree or its `innerText`. That output is not Markdown, and a page like this one does not stress the fallback: every converter opens it. A page under hostile anti-bot is a different benchmark, and this one does not run it.
@@ -219,7 +219,7 @@ Fetch the answer key with `curl https://code.claude.com/docs/en/plugins-referenc
 - **What the scores miss.** The key is the author's Markdown, not a judgment of what an agent needs. Word overlap does not check reading order or link targets.
 - **The fetchers' real test is a page converters can't open.** Cloudflare challenges, single-page applications, bot-detection: a browser-automation tool is the way in. This page does not exercise that, so Claude in Chrome, Playwright MCP and the Playwright Extension are measured here on content every converter also handles. A separate anti-bot benchmark would rank them differently.
 - **CloakBrowser was run without a proxy on this page.** The stealth Chromium passed the site's checks because the page has no bot-detection. A production run on a paywalled or Cloudflare-protected site needs a residential proxy and raises the per-page cost. We left scrapling's `browser_fetch_once` out of the single-page comparison to keep the stealth row tight; a Cloudflare/SPA benchmark would include both.
-- **Latency numbers mix two measurement methods.** Direct HTTP and Python/Node library calls are a clean wall-clock. Rows marked ⁸ were measured via Claude Code's MCP shim, which adds ~3 s of fixed wrapping overhead per call — the tool's own latency is ~3 s less on those rows. Numbers are single fresh calls, not medians, from a US residential ISP (~250 Mbit/s).
+- **Latency numbers mix two measurement methods.** Direct HTTP and Python/Node library calls are a clean wall-clock. Rows marked ⁸ were measured via Claude Code's MCP shim, which adds ~3 s of fixed wrapping overhead per call — the tool's own latency is ~3 s less on those rows. Numbers are single fresh calls, not medians (the Page2AI hosted row is the median of three), from a US residential ISP (~250 Mbit/s).
 - **One page, not a multi-site benchmark.** For the multi-site benchmark, see [page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark).
 
 We do not republish the outputs, since each one is a copy of Anthropic's page.
