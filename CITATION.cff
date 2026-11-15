@@ -10,13 +10,13 @@ version: 0.1.0
 date-released: 2026-07-23
 license: MIT
 repository-code: "https://github.com/igorsaevets/page2ai-docs"
-url: "https://igorsaevets.github.io/page2ai-docs/"
+url: "https://page2ai.net/"
 authors:
   - given-names: Igor
     family-names: Saevets
     orcid: "https://orcid.org/0009-0006-8636-1377"
     email: support@igorsaevets.com
-    website: "https://igorsaevets.github.io/page2ai-docs/about/"
+    website: "https://page2ai.net/about/"
 keywords:
   - documentation
   - starlight

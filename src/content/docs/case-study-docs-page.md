@@ -18,14 +18,14 @@ head:
         "keywords": "web to markdown, html to markdown, markdown converter benchmark, web scraping benchmark, LLM-ready markdown, AI agents, MCP fetch tool, remote MCP server, local MCP server, context window, token efficiency, Firecrawl alternative, Jina Reader alternative, Playwright MCP, Claude in Chrome, CloakBrowser, scrapling 0.5, latency benchmark",
         "datePublished": "2026-11-13",
         "dateModified": "2026-11-15",
-        "author": { "@type": "Person", "name": "Igor Saevets", "url": "https://igorsaevets.github.io/page2ai-docs/about/" },
+        "author": { "@type": "Person", "name": "Igor Saevets", "url": "https://page2ai.net/about/" },
         "about": [
           { "@type": "Thing", "name": "HTML to Markdown conversion" },
           { "@type": "Thing", "name": "Web scraping for LLMs and AI agents" },
           { "@type": "Thing", "name": "Browser automation for AI agents" }
         ],
         "mentions": [
-          { "@type": "SoftwareApplication", "name": "Page2AI", "url": "https://igorsaevets.github.io/page2ai-docs/" },
+          { "@type": "SoftwareApplication", "name": "Page2AI", "url": "https://page2ai.net/" },
           { "@type": "SoftwareApplication", "name": "Firecrawl" },
           { "@type": "SoftwareApplication", "name": "Jina Reader" },
           { "@type": "SoftwareApplication", "name": "Tavily" },
@@ -235,4 +235,4 @@ We do not republish the outputs, since each one is a copy of Anthropic's page.
 
 ---
 
-*Written by [Igor Saevets](/page2ai-docs/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*
+*Written by [Igor Saevets](/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*

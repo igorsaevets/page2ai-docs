@@ -9,11 +9,11 @@ head:
       {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "@id": "https://igorsaevets.github.io/page2ai-docs/privacy/",
+        "@id": "https://page2ai.net/privacy/",
         "name": "Page2AI privacy policy",
-        "url": "https://igorsaevets.github.io/page2ai-docs/privacy/",
-        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
+        "url": "https://page2ai.net/privacy/",
+        "author": { "@id": "https://page2ai.net/about/#person" },
+        "publisher": { "@id": "https://page2ai.net/about/#person" },
         "datePublished": "2026-07-24",
         "inLanguage": "en"
       }
@@ -52,7 +52,9 @@ Every product listed above runs entirely on the user's own machine. The hosted e
 - The Chrome Web Store links on the converter page carry a campaign tag (`utm_source=page2ai-docs`), so the store's
   statistics count visits that came from this page; the tag holds nothing about you.
 - This site is hosted on GitHub Pages, which, like any web host, receives your IP address and browser details when
-  you load a page; see GitHub's privacy statement. There are no cookies, analytics or trackers on this site. The
+  you load a page; see GitHub's privacy statement. The domain page2ai.net is registered with Cloudflare, whose name
+  servers answer DNS lookups for it; page requests go straight to GitHub Pages and do not pass through Cloudflare.
+  There are no cookies, analytics or trackers on this site. The
   site keeps your light or dark theme choice, and which sidebar groups are open, in your browser's own storage;
   neither is ever sent anywhere.
 

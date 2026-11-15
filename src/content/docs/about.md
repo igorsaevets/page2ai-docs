@@ -9,23 +9,23 @@ head:
       {
         "@context": "https://schema.org",
         "@type": "Person",
-        "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person",
+        "@id": "https://page2ai.net/about/#person",
         "name": "Igor Saevets",
         "alternateName": ["Игорь Саевец"],
         "givenName": "Igor",
         "familyName": "Saevets",
         "nationality": {"@type": "Country", "name": "Belarus"},
-        "url": "https://igorsaevets.github.io/page2ai-docs/about/",
+        "url": "https://page2ai.net/about/",
         "mainEntityOfPage": {
           "@type": "AboutPage",
-          "@id": "https://igorsaevets.github.io/page2ai-docs/about/"
+          "@id": "https://page2ai.net/about/"
         },
         "image": "https://github.com/igorsaevets.png",
         "jobTitle": "Founder, Page2AI",
         "worksFor": {
           "@type": "Organization",
           "name": "Page2AI",
-          "url": "https://igorsaevets.github.io/page2ai-docs/"
+          "url": "https://page2ai.net/"
         },
         "identifier": [
           {
@@ -36,7 +36,7 @@ head:
           }
         ],
         "sameAs": [
-          "https://igorsaevets.github.io/page2ai-docs/about/",
+          "https://page2ai.net/about/",
           "https://orcid.org/0009-0006-8636-1377",
           "https://github.com/igorsaevets",
           "https://www.linkedin.com/in/igorsaevets/",

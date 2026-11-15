@@ -2,7 +2,7 @@
 
 Usage:
   python scripts/converter_e2e.py <page-url> [corpus-dir ...]
-  e.g. python scripts/converter_e2e.py http://localhost:4329/page2ai-docs/convert/ ../page2ai-benchmark/corpus
+  e.g. python scripts/converter_e2e.py http://localhost:4329/convert/ ../page2ai-benchmark/corpus
 
 Each check prints PASS/FAIL; the last line is VERDICT: OK (n/n) or VERDICT: FAIL (n/m).
 Parity: every corpus file goes through the page (upload) and through scripts/core_convert.mjs (Node, the

@@ -10,10 +10,10 @@ head:
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "Page2AI vs Firecrawl vs Jina Reader vs markitdown vs crawl4ai — feature comparison",
-        "author": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "publisher": { "@id": "https://igorsaevets.github.io/page2ai-docs/about/#person" },
-        "url": "https://igorsaevets.github.io/page2ai-docs/comparison/",
-        "mainEntityOfPage": "https://igorsaevets.github.io/page2ai-docs/comparison/"
+        "author": { "@id": "https://page2ai.net/about/#person" },
+        "publisher": { "@id": "https://page2ai.net/about/#person" },
+        "url": "https://page2ai.net/comparison/",
+        "mainEntityOfPage": "https://page2ai.net/comparison/"
       }
 ---
 
@@ -52,10 +52,10 @@ Checked on 2026-10-24: the licenses (each project's GitHub repository), Firecraw
 
 An open, reproducible benchmark suite is in progress at [github.com/igorsaevets/page2ai-benchmark](https://github.com/igorsaevets/page2ai-benchmark) — archived at DOI [10.5281/zenodo.21539768](https://doi.org/10.5281/zenodo.21539768). Five documentation frameworks × three tools × two tasks = 30 data points, published under MIT with CC0 data.
 
-A single-page [web-to-Markdown benchmark of 12 tools](/page2ai-docs/case-study-docs-page/) (2026-11-13) measures what Page2AI, Firecrawl, Jina Reader, Tavily, Exa, Nimble, Parallel, crawl4ai, scrapling and trafilatura return for one documentation page, scored against the site's own Markdown.
+A single-page [web-to-Markdown benchmark of 12 tools](/case-study-docs-page/) (2026-11-13) measures what Page2AI, Firecrawl, Jina Reader, Tavily, Exa, Nimble, Parallel, crawl4ai, scrapling and trafilatura return for one documentation page, scored against the site's own Markdown.
 
 Framing: **tradeoff matrix**, not "we win overall." Page2AI is expected to lead on JSX/MDX-heavy sites with heavy tab widgets, and to lag on plain HTML pages that Firecrawl or Jina handle equally well. Local vs cloud, cost vs speed, telemetry vs privacy are separate axes.
 
 ---
 
-*Written by [Igor Saevets](/page2ai-docs/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*
+*Written by [Igor Saevets](/about/) — [LinkedIn](https://www.linkedin.com/in/igorsaevets/) · [GitHub](https://github.com/igorsaevets).*
