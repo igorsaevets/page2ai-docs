@@ -579,6 +579,10 @@ Several studies count how sites declare rules for AI crawlers, and one also prob
 
 These numbers describe declarations aimed mostly at training and search crawlers, or probes of home pages with chosen User-Agents from datacenters. This study counts what happened when agents fetched specific deep URLs on a user's request, with tools started on one PC (some of them fetch from their own servers). A share of sites that disallow GPTBot cannot tell whether a coding agent got a given page, and a 403 in this data cannot by itself tell anything about the site's robots.txt. The two kinds of numbers should not be put side by side as if they measured the same thing.
 
+## Two other measurements
+
+Two preprints from 2026 look at the same kind of traffic from other sides. Zhang fetched 10,307 URLs with a static client and a rendered browser and labelled what each 200 response contained: by the automatic labels, 20.9% of the pages that the static client received with status 200 did not contain the page's main content (app shells, bot challenges, block pages, error and placeholder pages, partial content), and 13.1% of the sites that answered a request for a random, non-existent path returned 200 ([arXiv:2611.00884](https://arxiv.org/abs/2611.00884)). Borysenko recorded the HTTP signatures of nine coding agents, Claude Code, OpenCode and Antigravity among them, and of six assistant services on the server of a live documentation site ([arXiv:2604.02544](https://arxiv.org/abs/2604.02544); short version in AgenticDev '26, [doi:10.1145/3843282.3844445](https://doi.org/10.1145/3843282.3844445)). The first shows how much an "opened" outcome can overstate what an agent actually got, the second what a site sees of these agents; the data here records only what each agent's tool reported.
+
 ## Limitations
 
 - **One person, one PC, one home connection in the US.** The sites are the ones my work needed: AI tools, developer documentation, US government and legal pages, app stores. Rates here are observations about this sample, not rates for the web.
