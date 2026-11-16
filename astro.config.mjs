@@ -94,6 +94,7 @@ export default defineConfig({
         { label: 'MCP server', slug: 'mcp' },
         { label: 'Comparison', slug: 'comparison' },
         { label: 'Benchmark: one docs page', slug: 'case-study-docs-page' },
+        { label: 'Research: what agents could not open', slug: 'research/agent-fetch-outcomes' },
         {
           label: 'Guides',
           items: [
