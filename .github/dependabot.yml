@@ -5,7 +5,29 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # A version is proposed only once it is a week old (majors two weeks): a release
+    # pulled or found malicious in its first days never reaches a PR. Security updates
+    # do not wait. Our own @page2ai/core is exempt: the online converter takes a core
+    # release as soon as it is published.
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      exclude: ["@page2ai/*"]
+    # Every minor and patch update in one PR per run, instead of one PR per package
+    # (16 Dependabot PRs piled up across the repos by 2026-11-21). Majors still come
+    # one by one, and @page2ai/core keeps its own PR: it changes what the online
+    # converter outputs, so it gets the converter e2e on its own.
+    groups:
+      npm-minor-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+        exclude-patterns: ["@page2ai/*"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
