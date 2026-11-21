@@ -9,6 +9,9 @@ export default defineConfig({
   // GitHub answers the old project-site URLs (igorsaevets.github.io/page2ai-docs/<path>) with a 301 to
   // https://page2ai.net/<path>; keep every page at its path so those redirects land on a page.
   site: 'https://page2ai.net',
+  // Starlight 0.43 stopped forcing `:where(.astro-HASH)` scoped selectors and follows this option, whose Astro
+  // default is the higher-specificity attribute selector. Kept at 'where' so every page keeps the CSS it had on 0.42.
+  scopedStyleStrategy: 'where',
   integrations: [
     starlight({
       title: 'Page2AI',
