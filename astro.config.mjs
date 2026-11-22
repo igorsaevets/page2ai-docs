@@ -62,6 +62,12 @@ export default defineConfig({
             href: 'https://www.npmjs.com/~igorsaevets',
           },
         },
+        // Raster icons beside Starlight's favicon.svg (public/, the Page2AI icon since 2026-11-22): /favicon.ico
+        // for clients that ask for that path only, a PNG above 48x48 for Google Search (its favicon guidelines list
+        // no SVG), and the iOS home-screen icon. `sizes` on the ICO keeps Chrome on the SVG.
+        { tag: 'link', attrs: { rel: 'icon', href: '/favicon.ico', sizes: '32x32' } },
+        { tag: 'link', attrs: { rel: 'icon', href: '/icon-192.png', type: 'image/png', sizes: '192x192' } },
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
       ],
       social: [
         {
