@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.43.1",
-    "@page2ai/core": "^0.4.25",
+    "@page2ai/core": "^0.4.27",
     "astro": "^7.4.13",
     "marked": "18.2.1",
     "sharp": "^0.35.5",
