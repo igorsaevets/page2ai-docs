@@ -1,6 +1,7 @@
 ---
 title: 'What AI coding agents could not open'
-description: 'An audit of every web fetch that Claude Code, Claude Desktop, Codex, OpenCode, MiMo Code and Antigravity made on one Windows PC between May and November 2026: what opened, what refused, what never existed, and what the vendors say about their fetchers. Open data under CC BY 4.0.'
+description: 'An audit of the web fetches that Claude Code, Claude Desktop, Codex, OpenCode, MiMo Code and Antigravity made on one Windows PC between May and November 2026: what opened, what refused, what never existed, and what the vendors say about their fetchers. Open data under CC BY 4.0. Corrected 2026-11-28.'
+lastUpdated: 2026-11-28
 head:
   - tag: meta
     attrs:
@@ -14,10 +15,16 @@ head:
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "What AI coding agents could not open: 19,611 page fetches by six agents on one PC",
-        "description": "An audit of every web fetch that Claude Code, Claude Desktop, Codex, OpenCode, MiMo Code and Antigravity made on one Windows PC between May and November 2026: what opened, what refused, what never existed, and what the vendors say about their fetchers. Open data under CC BY 4.0.",
+        "description": "An audit of the web fetches that Claude Code, Claude Desktop, Codex, OpenCode, MiMo Code and Antigravity made on one Windows PC between May and November 2026: what opened, what refused, what never existed, and what the vendors say about their fetchers. Open data under CC BY 4.0. Corrected 2026-11-28.",
         "url": "https://page2ai.net/research/agent-fetch-outcomes/",
         "datePublished": "2026-11-16",
-        "dateModified": "2026-11-16",
+        "dateModified": "2026-11-28",
+        "correction": {
+          "@type": "CorrectionComment",
+          "datePublished": "2026-11-28",
+          "url": "https://page2ai.net/research/agent-fetch-outcomes/#correction-of-2026-11-28",
+          "text": "The scanner did not read two newer history formats (Antigravity's tool-call steps since August 2026 and OpenCode's execute tool), so 3,109 calls made before the freeze were missing from attempts.csv. They are published as data/2026-11-27_missed-before-freeze.csv; with them the data holds 22,720 calls instead of 19,611."
+        },
         "author": {
           "@type": "Person",
           "name": "Igor Saevets",
@@ -85,11 +92,12 @@ head:
         "@type": "Dataset",
         "@id": "https://page2ai.net/research/agent-fetch-outcomes/#dataset",
         "name": "Agent fetch outcomes: 19,611 page fetches by six AI agents on one PC (2026)",
-        "description": "Every call in which an AI agent on one Windows PC tried to open a web page, from 2026-05-09 to 2026-11-16 07:30 UTC, one row per call and URL, with the tool used and the outcome: content, refusal by the site, challenge page, HTTP 402, not found, redirect, network error or tool-side error. Agents: Claude Code, Claude Desktop, Codex, OpenCode, MiMo Code and Antigravity. With per-host summaries and the two scanners that read the agents' local histories.",
+        "description": "Every call in which an AI agent on one Windows PC tried to open a web page, from 2026-05-09 to 2026-11-16 07:30 UTC, one row per call and URL, with the tool used and the outcome: content, refusal by the site, challenge page, HTTP 402, not found, redirect, network error or tool-side error. Agents: Claude Code, Claude Desktop, Codex, OpenCode, MiMo Code and Antigravity. With per-host summaries and the two scanners that read the agents' local histories. Calls before 2026-11-16 that the first scanner missed (3,109, Antigravity and OpenCode) are in a separate file added on 2026-11-27; see the article's correction of 2026-11-28.",
         "url": "https://page2ai.net/research/agent-fetch-outcomes/",
         "sameAs": "https://github.com/igorsaevets/agent-fetch-outcomes",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "datePublished": "2026-11-16",
+        "dateModified": "2026-11-28",
         "creator": {
           "@type": "Person",
           "name": "Igor Saevets",
@@ -139,12 +147,28 @@ head:
             "name": "summary.json",
             "encodingFormat": "application/json",
             "contentUrl": "https://raw.githubusercontent.com/igorsaevets/agent-fetch-outcomes/main/data/summary.json"
+          },
+          {
+            "@type": "DataDownload",
+            "name": "2026-11-27_missed-before-freeze.csv",
+            "encodingFormat": "text/csv",
+            "contentUrl": "https://raw.githubusercontent.com/igorsaevets/agent-fetch-outcomes/main/data/2026-11-27_missed-before-freeze.csv"
+          },
+          {
+            "@type": "DataDownload",
+            "name": "2026-11-28_counts-with-missed-calls.json",
+            "encodingFormat": "application/json",
+            "contentUrl": "https://raw.githubusercontent.com/igorsaevets/agent-fetch-outcomes/main/data/2026-11-28_counts-with-missed-calls.json"
           }
         ]
       }
 ---
 
-*19,611 page fetches by six agents on one PC, May to November 2026. Published 2026-11-16.*
+*19,611 page fetches by six agents on one PC, May to November 2026. Published 2026-11-16, corrected 2026-11-28.*
+
+:::caution[Correction, 2026-11-28]
+The scanner behind this article did not read two newer history formats: the tool-call steps Antigravity has written since August 2026, and the web calls OpenCode makes inside its `execute` code tool. A fixed scanner found 3,109 more calls made before the freeze (Antigravity 1,999, OpenCode 1,110); they are published as a separate file, [`data/2026-11-27_missed-before-freeze.csv`](https://github.com/igorsaevets/agent-fetch-outcomes/blob/main/data/2026-11-27_missed-before-freeze.csv). The title, the tables and the counts in the text below still describe the 19,611 calls of `attempts.csv`. With the missed calls there are 22,720: Antigravity has 2,402 calls instead of 403 and OpenCode 2,668 instead of 1,558, while the share of recorded calls that opened moves from 86.5% to 86.7%. Every figure that changes is listed in [Correction of 2026-11-28](#correction-of-2026-11-28).
+:::
 
 I use AI agents every day: Claude Code in the terminal and in the Claude Desktop app, Codex, OpenCode, MiMo Code and, for a short time, Antigravity. All of them read web pages for me, and sometimes a page does not come back. I wanted to know how often that happens, on which sites, with which tool, and what the agent did next.
 
@@ -175,7 +199,7 @@ Every agent keeps a history on disk. I wrote two scanners that read those histor
 | MiMo Code | `mimocode.db` (SQLite) | one tool part with a URL |
 | Antigravity | one SQLite file per conversation, steps as protobuf | one fetch, MCP or command step |
 
-Claude Code covers 2026-06-10 to 2026-11-16, Claude Desktop chat 2026-05-09 to 2026-11-05 (its last logged call), Codex 2026-06-28 to 2026-11-16, OpenCode 2026-09-01 to 2026-11-16, MiMo Code 2026-09-22 to 2026-11-16 and Antigravity 2026-08-09 to 2026-08-18. Everything is cut at **2026-11-16 07:30 UTC**, so the counts do not move when the scanners run again. A re-scan of the four non-Claude stores with that cut reproduced the earlier file row for row (8,187 rows before the privacy filter, no differences).
+Claude Code covers 2026-06-10 to 2026-11-16, Claude Desktop chat 2026-05-09 to 2026-11-05 (its last logged call), Codex 2026-06-28 to 2026-11-16, OpenCode 2026-09-01 to 2026-11-16, MiMo Code 2026-09-22 to 2026-11-16 and Antigravity 2026-08-09 to 2026-08-18. Everything is cut at **2026-11-16 07:30 UTC**, so the counts do not move when the scanners run again. A re-scan of the four non-Claude stores with that cut reproduced the earlier file row for row (8,187 rows before the privacy filter, no differences). *(Corrected 2026-11-28: that re-scan used the same scanner. The fixed scanner finds 3,213 more calls before the cut, and Antigravity's calls run to 2026-11-16; see [Correction of 2026-11-28](#correction-of-2026-11-28).)*
 
 ### One call, one row
 
@@ -238,6 +262,8 @@ The histories are mine, and I decided to publish the sites by name, including go
 | MiMo Code | 2026-09-22 .. 2026-11-16 | 1005 | 941 (93.6%) | 11 | 0 | 15 | 0 | 0 | 1 | 13 | 24 | 0 | 0 |
 | Antigravity | 2026-08-09 .. 2026-08-18 | 403 | 318 (78.9%) | 16 | 0 | 53 | 0 | 0 | 4 | 3 | 6 | 3 | 0 |
 
+*Corrected 2026-11-28: the Antigravity and OpenCode rows count only the calls the first scanner read. With the calls it missed, Antigravity has 2,402 calls, 2,103 of them opened (87.6%), and OpenCode 2,668, 1,916 opened (88.2%); see [Correction of 2026-11-28](#correction-of-2026-11-28).*
+
 Claude Code dominates the data because I use it most. Codex's low share has two causes that are not the sites: 461 of its 583 tool-side errors are MCP calls that were cancelled and 35 more were refused by its approval policy, and 2,854 of its calls have no recorded outcome. The "other/unclear" column holds other HTTP errors, unclear answers and three refusals by a fetch service.
 
 ### By tool
@@ -266,6 +292,8 @@ Claude Code dominates the data because I use it most. Codex's low share has two 
 | Claude Code | `scrapling:fetch` | local browser or scraper | 108 | 88.0% | 1 | 0 | 7 | 0 | 0 | 2 |
 | OpenCode | `curl(shell)` | shell HTTP client | 105 | 84.8% | 0 | 0 | 0 | 0 | 0 | 11 |
 | Claude Code | `claude-in-chrome:navigate` | local browser or scraper | 88 | 97.7% | 0 | 0 | 0 | 0 | 0 | 2 |
+
+*Corrected 2026-11-28: with the missed calls, Antigravity's `read_url_content` has 1,316 calls (83.4% opened), and six more Antigravity and OpenCode tools have more calls than this table's last row; see [Correction of 2026-11-28](#correction-of-2026-11-28).*
 
 WebFetch opens fewer pages than the reader services next to it, but the comparison is not fair to it. It is the tool the agent tries first, on every kind of URL, including the ones the model wrote itself; in my setup Jina Reader is usually the second attempt.
 
@@ -583,13 +611,48 @@ These numbers describe declarations aimed mostly at training and search crawlers
 
 Two preprints from 2026 look at the same kind of traffic from other sides. Zhang fetched 10,307 URLs with a static client and a rendered browser and labelled what each 200 response contained: by the automatic labels, 20.9% of the pages that the static client received with status 200 did not contain the page's main content (app shells, bot challenges, block pages, error and placeholder pages, partial content), and 13.1% of the sites that answered a request for a random, non-existent path returned 200 ([arXiv:2611.00884](https://arxiv.org/abs/2611.00884)). Borysenko recorded the HTTP signatures of nine coding agents, Claude Code, OpenCode and Antigravity among them, and of six assistant services on the server of a live documentation site ([arXiv:2604.02544](https://arxiv.org/abs/2604.02544); short version in AgenticDev '26, [doi:10.1145/3843282.3844445](https://doi.org/10.1145/3843282.3844445)). The first shows how much an "opened" outcome can overstate what an agent actually got, the second what a site sees of these agents; the data here records only what each agent's tool reported.
 
+## Correction of 2026-11-28
+
+**What was wrong.** The second scanner, `other_clis_t265.py`, read Antigravity's page fetches only in the step format that Antigravity stopped using on 2026-08-18. It did not read step type 132, which Antigravity has used for tool calls since August 2026, or step type 38, older MCP calls whose URL sits inside JSON arguments. It also took OpenCode's `execute` tool, which runs MCP and fetch tools from code, for a shell command with no URL in it. I found this on 2026-11-27, when the scanner returned almost nothing for a later run that I knew had fetched many pages. The fixed scanner found 3,213 calls made before the freeze that `attempts.csv` does not have; after the same publication filter 3,109 remain (104 removed, 198 reduced to their host). They are in [`data/2026-11-27_missed-before-freeze.csv`](https://github.com/igorsaevets/agent-fetch-outcomes/blob/main/data/2026-11-27_missed-before-freeze.csv), with the same columns as `attempts.csv` and a [section in the dataset card](https://github.com/igorsaevets/agent-fetch-outcomes/blob/main/data/README.md#2026-11-27_missed-before-freezecsv); the repository's README describes the gap under [Limits](https://github.com/igorsaevets/agent-fetch-outcomes#limits). `attempts.csv` and `summary.json` are unchanged. The counts in this section are in [`data/2026-11-28_counts-with-missed-calls.json`](https://github.com/igorsaevets/agent-fetch-outcomes/blob/main/data/2026-11-28_counts-with-missed-calls.json), and the article as it stood before this correction is [kept in the repository](https://github.com/igorsaevets/agent-fetch-outcomes/blob/8a8a3ccaa3ea9d29ed197dedb53d37e25d96126c/article.md).
+
+| agent | calls | opened (% of recorded) | refused by the site | not found | network/server | tool-side | outcome not recorded |
+|---|---|---|---|---|---|---|---|
+| Antigravity, in the tables above (2026-08-09 .. 2026-08-18) | 403 | 318 (78.9%) | 16 | 53 | 3 | 6 | 0 |
+| Antigravity, with the missed calls (2026-08-08 .. 2026-11-16) | 2402 | 2103 (87.6%) | 74 | 148 | 12 | 55 | 0 |
+| OpenCode, in the tables above (2026-09-01 .. 2026-11-16) | 1558 | 1410 (90.5%) | 21 | 79 | 17 | 24 | 0 |
+| OpenCode, with the missed calls (same period) | 2668 | 1916 (88.2%) | 31 | 108 | 29 | 79 | 495 |
+| all six agents, in the tables above | 19611 | 14503 (86.5%) | 328 | 533 | 163 | 893 | 2854 |
+| all six agents, with the missed calls | 22720 | 16794 (86.7%) | 396 | 657 | 184 | 997 | 3349 |
+
+OpenCode's added count is a floor. For 495 of its 1,110 added calls the code tool's printout does not name the URL, so their outcome is not recorded. OpenCode also deleted 134 sessions from its store after the freeze: their 791 calls are in `attempts.csv`, but whatever their `execute` calls fetched cannot be counted.
+
+What the missed calls change in the findings above:
+
+- **Most fetches worked:** 16,794 of 19,371 recorded calls opened (86.7%, was 86.5%); over all 22,720 calls the opened share lies between 73.9% and 88.7% (was 74.0% and 88.5%).
+- **Sites rarely refused:** 396 refusals on 122 hosts (was 328 on 109), 2.0% of recorded calls as before. Claude Code's WebFetch still received 226 of them.
+- **Refusals routed around:** a different tool opened the same URL later in the same session in 155 of 396 cases (39%; was 107 of 328, 33%). In 8 of those pairs the refused call is in `attempts.csv` and the later call in the missed-calls file; they were matched on the private timestamps, because the public files keep only the day, so the two files' `rescued_by` columns count 147.
+- **Hosts never opened:** 137 with 174 failed calls (was 113 with 150): on 37 a site refused, on 34 the connection or the server failed, 1 needed a login, and on 65 every call asked for a page that did not exist or redirected elsewhere.
+- **Automated reviews:** 1,307 of Antigravity's 2,402 calls came from review runs that a script started (was 123 of 403); Codex's 686 are unchanged.
+- **Unchanged:** all missed calls are Antigravity and OpenCode calls (the fixed scanner found no new Codex or MiMo Code calls), so the Claude Code findings (the "not found" answers for URLs that had not appeared in the conversation, the 19 calls Claude Code refused by its own list) and x.com's HTTP 402s stay as they are. The Claude Code scanner, `fetch_failures.py`, was not part of this check.
+
+Other statements that no longer hold:
+
+- The introduction says I used Antigravity "for a short time". Its history holds calls in every month from August to November 2026: besides the 1,307 from automated reviews, 485 in August, 182 in September, 389 in October and 39 in November.
+- "The data" gives Antigravity's period as 2026-08-09 to 2026-08-18 and says that a re-scan reproduced the earlier file row for row. That re-scan used the same scanner; the calls run from 2026-08-08 to 2026-11-16.
+- "Missing surfaces" lists Antigravity outside August 2026. Those calls were in its history; the scanner did not read them.
+- In "By tool", Antigravity's `read_url_content` has 1,316 calls (83.4% opened), and six more tools have more calls than the table's last row (88): Antigravity's `jina-mcp-server:read_url` (632 calls, 95.3% opened) and `playwright:browser_navigate` (115, 97.4%), and OpenCode's `execute>exa:web_fetch_exa` (287, 86.4%), `execute>parallel-search:web_fetch` (251, 95.0%), `execute>jina-mcp-server:read_url` (166, 86.9%) and `execute>fetch` (163, 71.0%). In the family table the opened shares move by less than one percentage point, except "other MCP tool", which goes from 2 calls to 166 with OpenCode's `execute>fetch` (71.6% opened).
+- Other counts in the text: 4,649 rows from calls with several URLs (was 4,055), 2,683 low-confidence shell rows (was 2,665), 997 tool-side errors (was 893), 89 unclear or other HTTP errors (was 87), and 2,213 hosts (was 1,976), 1,501 of them "other" by site type (was 1,312).
+- The "By kind of site" table, the host tables and the tool-chain tables were not recounted; the two CSV files hold what is needed to recount them.
+
+Before counting both files, the code behind these numbers was run on `attempts.csv` alone and reproduced every row of the "By agent" table, five rows of the "By tool" table, the tool-family table and 21 counts quoted in the text. The second scanner in `scanners/` now reads both formats and stops when a history holds records newer than the last call it can parse (see the last section).
+
 ## Limitations
 
 - **One person, one PC, one home connection in the US.** The sites are the ones my work needed: AI tools, developer documentation, US government and legal pages, app stores. Rates here are observations about this sample, not rates for the web.
 - **The agents chose the URLs, and my instructions chose the order of tools.** A tool that is tried first on every URL collects the ones the model wrote itself; a tool tried second gets URLs that are more likely to exist. Open rates between tools are not a ranking, and the fallback chains reflect my setup.
 - **What a site saw is not recorded:** no User-Agent, address or TLS fingerprint per call, so the data cannot say why a site refused.
 - **Classification is heuristic.** It reads statuses first and text second; 893 tool-side errors and 87 unclear or other HTTP errors are set apart, and some rows are surely misclassified. The seven Jina 402s of 2026-07-27 more likely came from the reader service's side than from the sites; the record does not say.
-- **Missing surfaces:** the Claude Desktop chat's built-in fetch, claude.ai, Cowork and cloud sessions; the outcome of Codex's hosted search; Antigravity outside August 2026.
+- **Missing surfaces:** the Claude Desktop chat's built-in fetch, claude.ai, Cowork and cloud sessions; the outcome of Codex's hosted search; Antigravity outside August 2026 (corrected 2026-11-28: those calls were in Antigravity's history in a format the scanner did not read, and they are now in the missed-calls file).
 - **Provenance is checked for Claude Code only**, and only against the transcript (see above).
 - **Site types are a rule set on host names**, and 1,312 hosts are "other"; pmc.ncbi.nlm.nih.gov, for example, counts as government by its domain.
 - **"Opened" means the tool returned content.** WebFetch returns a model's summary and caches pages for 15 minutes, a reader service may answer from its cache, and a page that answers 200 with a login form or an error text counts as opened. Pages behind my own sign-in count as opened too.
@@ -605,6 +668,8 @@ The repository [github.com/igorsaevets/agent-fetch-outcomes](https://github.com/
 - `data/attempts.csv`: one row per call and URL, 19,611 rows, with date, agent, surface, tool, tool family, host, site type, URL, outcome, HTTP status, a cleaned error text, whether the URL was in the conversation, and which tool opened it later. Session and project names are replaced by keys.
 - `data/sites_by_category.csv`: per host and outcome group, with failed calls, days, first and last date, the answers, the tools that failed and the tools that opened the host.
 - `data/summary.json`: the aggregates behind the tables and the counts in the text (Claude Code version numbers and the informal re-tests come from the transcripts and are not in it).
+- `data/2026-11-27_missed-before-freeze.csv`: the 3,109 calls before the freeze that the first scanner missed, with the same columns (see [Correction of 2026-11-28](#correction-of-2026-11-28)), and `data/2026-11-28_counts-with-missed-calls.json`, the counts that section quotes.
+- `data/2026-11-27_legal-research-run.csv`: 981 calls of one automated review run on 2026-11-27, after the freeze and not counted in this article.
 - in `scanners/`, the scanners `fetch_failures.py` (Claude Code transcripts and Claude Desktop logs) and `other_clis_t265.py` (OpenCode, Codex, Antigravity, MiMo Code), standard-library Python with self-tests. The exporter that built the public files is not published, because its configuration names my private hosts; its rules are described in the dataset's README.
 
 To run them on your own machine:
@@ -617,8 +682,8 @@ python other_clis_t265.py --selftest
 python other_clis_t265.py --until 2026-11-16T07:30:00Z --out report-other
 ```
 
-They read the history files of the agents installed for the current user and never send anything over the network. Read their output before you publish it: your history holds your URLs too. MiMo Code keeps its database where it was installed, so the second scanner reads it only when given `--mimo-db <path>`.
+They read the history files of the agents installed for the current user and never send anything over the network. Read their output before you publish it: your history holds your URLs too. MiMo Code keeps its database where it was installed, so the second scanner reads it only when given `--mimo-db <path>`. Since 2026-11-27 the second scanner also reads the formats named in the correction, and it stops with "FORMAT DRIFT?" (exit code 3) when an agent's history holds records newer than the newest call it can parse; `--allow-drift` writes its output anyway.
 
 ## License and citation
 
-Data and text: CC BY 4.0. Code: MIT. Please cite as: Igor Saevets, "What AI coding agents could not open: 19,611 page fetches by six agents on one PC", page2ai.net, 2026, https://page2ai.net/research/agent-fetch-outcomes/. Data and scanners: https://github.com/igorsaevets/agent-fetch-outcomes.
+Data and text: CC BY 4.0. Code: MIT. Please cite as: Igor Saevets, "What AI coding agents could not open: 19,611 page fetches by six agents on one PC", page2ai.net, 2026 (corrected 2026-11-28), https://page2ai.net/research/agent-fetch-outcomes/. Data and scanners: https://github.com/igorsaevets/agent-fetch-outcomes.
